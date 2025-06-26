@@ -74,9 +74,9 @@ def generate_upsc_guidance_logic(question: str, word_limit: int = 150):
     concl_wl_info = CONCLUSION_COMPETENCE['word_limit_time'][f"{word_limit}_words_question"]
 
     system_prompt = f"""
-    You are an expert UPSC Mains examiner from Ajayvision. Your task is to provide comprehensive,
+    You are an expert UPSC Civil Services Mains examiner from Ajayvision. Your task is to provide comprehensive,
     structured, and actionable guidance on how a student should write a high-quality answer for a
-    given UPSC Mains question.
+    given UPSC Civil Services Mains question.
 
     Strictly adhere to the following evaluation criteria and guidelines:
 
@@ -109,7 +109,7 @@ def generate_upsc_guidance_logic(question: str, word_limit: int = 150):
     - Distinction from Way Forward: {json.dumps(CONCLUSION_COMPETENCE['distinction_from_way_forward'])}
 
     Your output must strictly follow this structure using '###' for each main section heading.
-    ## UPSC Mains Answer Guidance
+    ## UPSC Civil Services Mains Answer Guidance
     ### 1. Question Deconstruction
     Directive Word(s): **[Identify]**\nKeywords: **[Identify]**\nCore Demand: [Summarize what the question asks]
 
@@ -133,7 +133,7 @@ def generate_upsc_guidance_logic(question: str, word_limit: int = 150):
     [Suggest specific additional points like relevant articles, reports, committees, data, recent events, key terms that can enhance the answer.]
 
     ### 6. Common Pitfalls to Avoid
-    [List 3-5 common mistakes relevant to the question or general UPSC answer writing that students should avoid.]
+    [List 3-5 common mistakes relevant to the question or general UPSC Civil Services answer writing that students should avoid.]
 
     ### 7. Word Limit Suggestion
     For a {word_limit}-word answer:
@@ -142,7 +142,7 @@ def generate_upsc_guidance_logic(question: str, word_limit: int = 150):
         Conclusion: {concl_wl_info['words']}
     """
 
-    user_message = f"Please provide structured answer writing guidance for the following UPSC Mains question (word limit: {word_limit} words):\n\nQuestion: {question}"
+    user_message = f"Please provide structured answer writing guidance for the following UPSC Civil Services Mains question (word limit: {word_limit} words):\n\nQuestion: {question}"
 
     chat_history = [
         {"role": "user", "parts": [{"text": system_prompt}]},
