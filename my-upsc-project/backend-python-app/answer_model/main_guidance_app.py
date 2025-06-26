@@ -14,7 +14,7 @@ from evaluation_matrix import (
 
 # Function to call LLM API using requests (synchronous for local execution)
 def call_llm_api(prompt_messages):
-    """
+    """ 
     Makes a synchronous API call to the Gemini API using the requests library.
     This is suitable for local Python execution (e.g., in VS Code).
 
