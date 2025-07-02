@@ -4,6 +4,13 @@ import React, { useState } from 'react';
 import { callBackendApi, parseGuidanceMarkdown } from '../utils/commonUtils';
 import ReactMarkdown from 'react-markdown';
 
+const SECTION_OPTIONS = [
+  { key: 'question_deconstruction', label: 'Question Deconstruction' },
+  { key: 'introduction', label: 'Introduction Strategy' },
+  { key: 'body', label: 'Body - Key Dimensions/Points to Cover' },
+  { key: 'conclusion', label: 'Conclusion Strategy' }
+];
+
 // This is a simple accordion item component for cleaner code
 const AccordionItem = ({ title, content, isOpen, toggleOpen }) => {
   
@@ -62,6 +69,7 @@ const AccordionItem = ({ title, content, isOpen, toggleOpen }) => {
 const UserPortal = () => {
   const [question, setQuestion] = useState('');
   const [wordLimit, setWordLimit] = useState(150);
+  const [selectedSection, setSelectedSection] = useState('');
   const [guidanceSections, setGuidanceSections] = useState([]);
   const [openSectionId, setOpenSectionId] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -73,9 +81,9 @@ const UserPortal = () => {
   const [isTranslating, setIsTranslating] = useState(false);
 
 
-  const generateUpscGuidance = async () => {
-    if (!question.trim()) {
-      setError('Please enter a UPSC question.');
+  const generateSectionGuidance = async () => {
+    if (!question.trim() || !selectedSection) {
+      setError('Please enter a UPSC question and select a section.');
       return;
     }
 
@@ -86,10 +94,22 @@ const UserPortal = () => {
     setOpenSectionId(null);
 
     try {
-      const response = await callBackendApi('generate_guidance', {
+      const response = await callBackendApi('generate_section', {
         question: question,
         wordLimit: wordLimit,
+        section: selectedSection,
       });
+
+      setGuidanceSections(prev => [
+        ...prev,
+        {
+          id: prev.length,
+          title: SECTION_OPTIONS.find(opt => opt.key === selectedSection)?.label || selectedSection,
+          content: response.guidance
+        }
+      ]);
+      setSelectedSection('');
+      setOpenSectionId(guidanceSections.length);
 
       const result = response.guidance;
       const parsedSections = parseGuidanceMarkdown(result);
@@ -149,6 +169,7 @@ const UserPortal = () => {
   const handleReset = () => {
     setQuestion('');
     setWordLimit(150);
+    setSelectedSection('');
     setGuidanceSections([]);
     setOriginalGuidance([]);
     setOpenSectionId(null);
@@ -158,11 +179,9 @@ const UserPortal = () => {
   };
 
   const handleCopyGuidance = () => {
-    let textToCopy = "UPSC Mains Answer Guidance:\n\n";
+    let textToCopy = 'UPSC Mains Answer Guidance:\n\n';
     guidanceSections.forEach(section => {
-        textToCopy += `### ${section.title}\n`;
-        textToCopy += `${section.content}\n`;
-        textToCopy += "\n";
+      textToCopy += `### ${section.title}\n${section.content}\n\n`;
     });
 
     if (textToCopy.trim()) {
@@ -201,38 +220,48 @@ const UserPortal = () => {
         ></textarea>
       </div>
 
-      <div className="space-y-4">
-        <label className="block text-lg font-semibold text-gray-700">
-          Select Word Limit:
-        </label>
-        <div className="flex items-center space-x-6">
-          <label className="inline-flex items-center cursor-pointer">
-            <input
-              type="radio"
-              className="form-radio text-indigo-600 h-5 w-5"
-              name="wordLimit"
-              value={150}
-              checked={wordLimit === 150}
-              onChange={() => setWordLimit(150)}
-            />
-            <span className="ml-2 text-gray-700 font-medium">150 Words</span>
-          </label>
-          <label className="inline-flex items-center cursor-pointer">
-            <input
-              type="radio"
-              className="form-radio text-indigo-600 h-5 w-5"
-              name="wordLimit"
-              value={250}
-              checked={wordLimit === 250}
-              onChange={() => setWordLimit(250)}
-            />
-            <span className="ml-2 text-gray-700 font-medium">250 Words</span>
-          </label>
+      <div className="mt-6">
+        <div>
+          <label className="block text-lg font-semibold text-gray-700 mb-1">Select Word Limit:</label>
+          <div className="flex gap-6">
+            {[150, 250].map(limit => (
+              <label key={limit} className="inline-flex items-center cursor-pointer">
+                <input
+                  type="radio"
+                  className="form-radio text-indigo-600 h-5 w-5"
+                  name="wordLimit"
+                  value={limit}
+                  checked={wordLimit === limit}
+                  onChange={() => setWordLimit(limit)}
+                />
+                <span className="ml-2 text-gray-700 font-medium">{limit} Words</span>
+              </label>
+            ))}
+          </div>
+        </div>
+
+        <div>
+          <label className="block text-lg font-semibold text-gray-700 mb-1">Which Section would you like guidance on?</label>
+          <select
+            value={selectedSection}
+            onChange={(e) => setSelectedSection(e.target.value)}
+            className="w-full rounded-md border-gray-300 px-4 py-2 text-gray-800"
+          >
+            <option value="">-- Select Section --</option>
+            {SECTION_OPTIONS.map(opt => (
+              <option key={opt.key} value={opt.key}>
+                {opt.label}
+              </option>
+            ))}
+          </select>
         </div>
       </div>
+      
+
+      
 
       <button
-        onClick={generateUpscGuidance}
+        onClick={generateSectionGuidance}
         className={`w-full px-6 py-3 rounded-lg text-white font-bold text-lg transition-all duration-300 ${
           loading
             ? 'bg-indigo-400 cursor-not-allowed animate-pulse'
