@@ -178,9 +178,9 @@ export const getCriteria = (componentPath) => {
   return current;
 };
 
-// Asynchronous function to call the Flask Backend
+// Asynchronous function to call the FastAPI Backend
 export const callBackendApi = async (endpoint, data) => {
-  const backendUrl = `http://localhost:5000/${endpoint}`;
+  const backendUrl = `http://localhost:8000/${endpoint}`;
 
   try {
     const response = await fetch(backendUrl, {
