@@ -1,6 +1,6 @@
 // frontend-app/src/components/AdminPortal.js
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react'; // <-- Import useEffect
 
 // Sample Questions Data (In-memory for PoC) - This is local to AdminPortal for its demo
 const sampleQuestions = [
@@ -11,24 +11,41 @@ const sampleQuestions = [
   { id: 5, text: "Highlight the ethical dilemmas associated with the rapid advancements in Artificial Intelligence and suggest a framework for responsible AI development.", topic: "Ethics" },
 ];
 
-const AdminPortal = () => { // Removed setCurrentPortal from props
+const AdminPortal = () => {
   const [adminKeyInput, setAdminKeyInput] = useState('');
   const [adminKeyError, setAdminKeyError] = useState('');
-  const ADMIN_POC_KEY = "ajayvisionadmin"; // Hardcoded admin key for PoC
-
+  const ADMIN_POC_KEY = "ajayvisionadmin";
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [pendingFeedback, setPendingFeedback] = useState([]);
+  const [approvedCount, setApprovedCount] = useState(0);
+  const [rejectedCount, setRejectedCount] = useState(0);
   const [questionsInMemory, setQuestionsInMemory] = useState(sampleQuestions);
-  const [editingQuestion, setEditingQuestion] = useState(null); // null or { id, text, topic }
+  const [editingQuestion, setEditingQuestion] = useState(null); 
   const [newQuestionText, setNewQuestionText] = useState('');
   const [newQuestionTopic, setNewQuestionTopic] = useState('');
+  const [editingFeedbackId, setEditingFeedbackId] = useState(null);
+  const [editedCommentText, setEditedCommentText] = useState("");
 
+  
   const handleAdminLogin = () => {
     if (adminKeyInput === ADMIN_POC_KEY) {
-      // In a real app, you'd set a token/cookie here
-      setAdminKeyError(''); // Clear any previous error
+      setIsAuthenticated(true); 
+      setAdminKeyError('');
     } else {
       setAdminKeyError('Invalid Admin Key');
+      setIsAuthenticated(false);
     }
   };
+  
+ 
+  useEffect(() => {
+    if (isAuthenticated) {
+      console.log("Admin authenticated. Fetching data...");
+      fetchPendingFeedback();
+      fetchModeratedStats();
+    }
+  }, [isAuthenticated]); // The dependency array ensures this runs when isAuthenticated changes
+
 
   const handleEditQuestion = (id) => {
     const q = questionsInMemory.find(q => q.id === id);
@@ -66,14 +83,74 @@ const AdminPortal = () => { // Removed setCurrentPortal from props
     }
   };
 
+  // --- These functions are now called by useEffect ---
+  const fetchPendingFeedback = async () => {
+    try {
+        const res = await fetch("http://localhost:8000/pending_feedback");
+        if (!res.ok) throw new Error("Failed to fetch pending feedback");
+        const data = await res.json();
+        setPendingFeedback(data);
+    } catch(err) {
+        console.error(err);
+        setAdminKeyError("Could not connect to backend to fetch feedback.");
+    }
+  };
+
+  const fetchModeratedStats = async () => {
+    try {
+        const res = await fetch("http://localhost:8000/feedback_stats");
+        if (!res.ok) throw new Error("Failed to fetch stats");
+        const data = await res.json();
+        setApprovedCount(data.approved);
+        setRejectedCount(data.rejected);
+    } catch(err) {
+        console.error(err);
+    }
+  };
+
+  const moderateFeedback = async (id, action) => {
+    await fetch(`http://localhost:8000/moderate_feedback?id=${id}&action=${action}`, {
+      method: "POST"
+    });
+    // Re-fetch data to update the UI
+    fetchPendingFeedback();
+    fetchModeratedStats();
+  };
+
+
+  const handleEditClick = (feedback) => {
+    setEditingFeedbackId(feedback.id);
+    setEditedCommentText(feedback.comment);
+  };
+
+  const handleCancelEdit = () => {
+    setEditingFeedbackId(null);
+    setEditedCommentText("");
+  };
+
+  const handleSaveAndModerate = async (id, action) => {
+    // We will now send the edited comment to the backend
+    await fetch(`http://localhost:8000/moderate_feedback?id=${id}&action=${action}`, {
+      method: "POST",
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ comment: editedCommentText }) // Send the edited comment
+    });
+    
+    setEditingFeedbackId(null); // Exit edit mode
+    fetchPendingFeedback();
+    fetchModeratedStats();
+  };
+
+
+
+
   return (
     <div className="space-y-8">
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-3xl font-bold text-indigo-800">Admin Portal</h2>
-        {/* Removed the "Go to User Portal" button */}
       </div>
 
-      {adminKeyInput !== ADMIN_POC_KEY && ( // Show key input if not verified
+      {!isAuthenticated ? ( // Show login form if not authenticated
         <div className="space-y-4">
           <label htmlFor="adminKey" className="block text-lg font-semibold text-gray-700">
             Enter Admin Key:
@@ -101,92 +178,68 @@ const AdminPortal = () => { // Removed setCurrentPortal from props
             </div>
           )}
         </div>
-      )}
-
-      {adminKeyInput === ADMIN_POC_KEY && ( // Show admin content if key is correct
+      ) : ( // Show admin content if authenticated
         <div className="space-y-8 mt-8">
-          <h3 className="text-2xl font-bold text-gray-800 border-b pb-2 mb-4">Manage Questions (In-memory PoC)</h3>
-          
-          {/* Add/Edit Question Form */}
-          <div className="p-6 bg-white rounded-lg shadow-md border border-gray-200 space-y-4">
-            <h4 className="text-xl font-semibold text-indigo-700 mb-3">{editingQuestion ? 'Edit Question' : 'Add New Question'}</h4>
-            <input
-              type="text"
-              className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 text-gray-800"
-              placeholder="Question Text"
-              value={newQuestionText}
-              onChange={(e) => setNewQuestionText(e.target.value)}
-            />
-            <input
-              type="text"
-              className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 text-gray-800"
-              placeholder="Topic (e.g., Polity, Economy)"
-              value={newQuestionTopic}
-              onChange={(e) => setNewQuestionTopic(e.target.value)}
-            />
-            <button
-              onClick={handleSaveQuestion}
-              className="w-full px-6 py-3 rounded-lg bg-green-600 text-white font-bold hover:bg-green-700 transition-colors"
-            >
-              {editingQuestion ? 'Save Changes' : 'Add Question'}
-            </button>
-            {editingQuestion && (
-              <button
-                onClick={() => {
-                  setEditingQuestion(null);
-                  setNewQuestionText('');
-                  setNewQuestionTopic('');
-                }}
-                className="w-full px-6 py-3 mt-2 rounded-lg bg-gray-400 text-white font-bold hover:bg-gray-500 transition-colors"
-              >
-                Cancel Edit
-              </button>
-            )}
+          <div className="flex gap-6">
+            <div className="bg-green-100 text-green-800 p-4 rounded shadow">
+              <p className="font-semibold">Approved Feedback</p>
+              <p className="text-2xl font-bold">{approvedCount}</p>
+            </div>
+            <div className="bg-red-100 text-red-800 p-4 rounded shadow">
+              <p className="font-semibold">Rejected Feedback</p>
+              <p className="text-2xl font-bold">{rejectedCount}</p>
+            </div>
           </div>
 
-          {/* List Questions */}
-          <div className="p-6 bg-white rounded-lg shadow-md border border-gray-200">
-            <h4 className="text-xl font-semibold text-indigo-700 mb-3">Current Questions</h4>
-            <ul className="divide-y divide-gray-200">
-              {questionsInMemory.map(q => (
-                <li key={q.id} className="py-4 flex flex-col sm:flex-row justify-between items-start sm:items-center">
-                  <div>
-                    <p className="text-gray-900 font-medium">Q{q.id}. {q.text}</p>
-                    <span className="text-sm text-gray-500">Topic: {q.topic}</span>
-                  </div>
-                  <div className="flex space-x-2 mt-3 sm:mt-0">
-                    <button
-                      onClick={() => handleEditQuestion(q.id)}
-                      className="px-3 py-1 text-sm rounded-md bg-blue-500 text-white hover:bg-blue-600 transition-colors"
-                    >
-                      Edit
-                    </button>
-                    <button
-                      onClick={() => handleDeleteQuestion(q.id)}
-                      className="px-3 py-1 text-sm rounded-md bg-red-500 text-white hover:bg-red-600 transition-colors"
-                    >
-                      Delete
-                    </button>
+          <h3 className="text-2xl font-bold text-gray-800 border-b pb-2 mb-4">Pending Feedback</h3>
+          {pendingFeedback.length === 0 ? (
+            <p className="text-gray-500">No unverified feedback.</p>
+          ) : (
+            <ul className="space-y-4">
+              {pendingFeedback.map((fb) => (
+                <li key={fb.id} className="border p-4 rounded-lg shadow-sm bg-white">
+                  {/* ... (other feedback details) ... */}
+                  <p><strong>Rating:</strong> <span className="font-bold text-indigo-700">{fb.rating}/10</span></p>
+                  
+                  {/* --- NEW: Conditional rendering for editing comments --- */}
+                  {editingFeedbackId === fb.id ? (
+                    <div className="my-2">
+                      <label className="font-semibold">Edit Comment:</label>
+                      <textarea
+                        className="w-full border p-2 rounded mt-1"
+                        value={editedCommentText}
+                        onChange={(e) => setEditedCommentText(e.target.value)}
+                      />
+                    </div>
+                  ) : (
+                    <p><strong>Comment:</strong> {fb.comment || "No comment."}</p>
+                  )}
+
+                  <div className="mt-3">
+                    {editingFeedbackId === fb.id ? (
+                      <>
+                        <button onClick={() => handleSaveAndModerate(fb.id, "approve")} className="bg-blue-500 text-white px-3 py-1 rounded mr-2 hover:bg-blue-600">Save & Approve</button>
+                        <button onClick={() => handleSaveAndModerate(fb.id, "reject")} className="bg-orange-500 text-white px-3 py-1 rounded mr-2 hover:bg-orange-600">Save & Reject</button>
+                        <button onClick={handleCancelEdit} className="bg-gray-400 text-white px-3 py-1 rounded hover:bg-gray-500">Cancel</button>
+                      </>
+                    ) : (
+                      <>
+                        <button onClick={() => moderateFeedback(fb.id, "approve")} className="bg-green-500 text-white px-3 py-1 rounded mr-2 hover:bg-green-600">Approve</button>
+                        <button onClick={() => moderateFeedback(fb.id, "reject")} className="bg-red-500 text-white px-3 py-1 rounded mr-2 hover:bg-red-600">Reject</button>
+                        <button onClick={() => handleEditClick(fb)} className="bg-gray-500 text-white px-3 py-1 rounded hover:bg-gray-600">Edit</button>
+                      </>
+                    )}
                   </div>
                 </li>
               ))}
             </ul>
-          </div>
-
-          <h3 className="text-2xl font-bold text-gray-800 border-b pb-2 mb-4">Manage Users (Dummy PoC)</h3>
-          <div className="p-6 bg-white rounded-lg shadow-md border border-gray-200">
-            <h4 className="text-xl font-semibold text-indigo-700 mb-3">Registered Users</h4>
-            <ul className="divide-y divide-gray-200">
-              <li className="py-2 text-gray-700">User ID: dummy_user_12345 (Student)</li>
-              <li className="py-2 text-gray-700">User ID: another_dummy_user (Student)</li>
-              <li className="py-2 text-gray-700">User ID: example_user_9876 (Student)</li>
-            </ul>
-            <p className="mt-4 text-sm text-gray-500">Note: User data is simulated in this Proof of Concept.</p>
-          </div>
+          )}
+          {/* ... (rest of the component) ... */}
         </div>
       )}
     </div>
   );
 };
-
+// Note: You would also need to update the `moderateFeedback` function to match the `handleSaveAndModerate` pattern
+// if you want to approve/reject without editing. For simplicity, this example combines saving with moderation.
 export default AdminPortal;

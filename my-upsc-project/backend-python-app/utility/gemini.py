@@ -6,9 +6,9 @@ GEMINI_API_KEY = get_gemini_api_key()
 def call_gemini_api(prompt_messages):
     """
     Makes a synchronous API call to the Gemini API using the requests library.
-    This function is called by the Flask endpoint.
+    This function is called by the FastAPI endpoint.
     """
-    if not GEMINI_API_KEY or GEMINI_API_KEY == "YOUR_GEMINI_API_KEY":
+    if not GEMINI_API_KEY:
         raise ValueError("Gemini API Key is not configured on the backend server.")
 
     payload = {

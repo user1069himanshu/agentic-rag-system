@@ -13,13 +13,11 @@ const SECTION_OPTIONS = [
 
 // This is a simple accordion item component for cleaner code
 const AccordionItem = ({ title, content, isOpen, toggleOpen }) => {
-  
-  // FINAL (Robust): Comprehensive formatting logic for ALL sections and patterns
+  // ... (This formatting logic remains the same)
   const formattedContent = content
-    // 1. First, remove any inconsistent bolding from the AI
     .replace(/\*\*/g, '') 
-    
-    // 2. Then, apply our own consistent formatting for "Label: Value" patterns
+    .replace(/\s+/g, ' ')
+    .trim()
     .replace(/Directive Word\(s\):/g, '**Directive Word(s):**')
     .replace(/Keywords:/g, '\n\n**Keywords:**')
     .replace(/Core Demand:/g, '\n\n**Core Demand:**')
@@ -30,14 +28,14 @@ const AccordionItem = ({ title, content, isOpen, toggleOpen }) => {
     .replace(/Introduction:/g, '\n\n**Introduction:**')
     .replace(/Body:/g, '\n\n**Body:**')
     .replace(/Conclusion:/g, '\n\n**Conclusion:**')
-
-    // 3. Add formatting for "Enumerated List" patterns using a robust word boundary (\b)
-    // This finds the letters A., B., etc. reliably.
-    .replace(/\b(A\.)/g, '**$1**')      // Bold A. without adding a preceding newline
-    .replace(/\b(B\.)/g, '\n\n**$1**')  // Add a newline and bold B.
+    .replace(/\b(A\.)/g, '**$1**')
+    .replace(/\b(B\.)/g, '\n\n**$1**')
     .replace(/\b(C\.)/g, '\n\n**$1**')
     .replace(/\b(D\.)/g, '\n\n**$1**')
-    .replace(/\b(E\.)/g, '\n\n**$1**');
+    .replace(/\b(E\.)/g, '\n\n**$1**')
+    .replace(/\* /g, '||BREAK||* ')
+    .replace(/\n/g, ' ')
+    .replace(/\|\|BREAK\|\|/g, '\n\n');
 
 
   return (
@@ -56,7 +54,6 @@ const AccordionItem = ({ title, content, isOpen, toggleOpen }) => {
       >
         <div className="p-6 border-t border-gray-200 bg-white">
           <div className="prose prose-indigo max-w-none text-gray-800">
-            {/* Use the final 'formattedContent' variable here */}
             <ReactMarkdown>{formattedContent}</ReactMarkdown>
           </div>
         </div>
@@ -75,10 +72,48 @@ const UserPortal = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [copyFeedback, setCopyFeedback] = useState('');
-
   const [originalGuidance, setOriginalGuidance] = useState([]);
   const [targetLanguage, setTargetLanguage] = useState('en');
   const [isTranslating, setIsTranslating] = useState(false);
+  const [rating, setRating] = useState('');
+  const [comment, setComment] = useState('');
+
+  // --- NEW: Corrected submitFeedback function ---
+  const submitFeedback = async () => {
+    // Find the most recent guidance section to submit feedback for
+    const latestSection = guidanceSections[guidanceSections.length - 1];
+
+    if (!latestSection) {
+      setError("No guidance has been generated yet to submit feedback for.");
+      return;
+    }
+    if (!rating) {
+      setError("Please provide a rating (1-10) before submitting.");
+      return;
+    }
+
+    // This is the correct data structure the backend expects
+    const feedbackPayload = {
+      question: question,
+      section: latestSection.title,
+      guidance: latestSection.content,
+      rating: Number(rating),
+      comment: comment
+    };
+
+    try {
+      // This is the correct way to call the helper function
+      const response = await callBackendApi("submit_feedback", feedbackPayload);
+      alert(response.message || "Thank you for your feedback!"); // Show success message
+      setRating(''); // Clear the form after successful submission
+      setComment('');
+      setError('');
+    } catch (err) {
+      // The catch block in callBackendApi will re-throw the error
+      // so we can display it here.
+      setError(`Failed to submit feedback. ${err.message}`);
+    }
+  };
 
 
   const generateSectionGuidance = async () => {
@@ -89,7 +124,8 @@ const UserPortal = () => {
 
     setLoading(true);
     setError('');
-    setGuidanceSections([]);
+    // Do not clear all guidance sections, instead we will append
+    // setGuidanceSections([]); 
     setCopyFeedback('');
     setOpenSectionId(null);
 
@@ -100,26 +136,19 @@ const UserPortal = () => {
         section: selectedSection,
       });
 
-      setGuidanceSections(prev => [
-        ...prev,
-        {
-          id: prev.length,
-          title: SECTION_OPTIONS.find(opt => opt.key === selectedSection)?.label || selectedSection,
-          content: response.guidance
-        }
-      ]);
-      setSelectedSection('');
-      setOpenSectionId(guidanceSections.length);
+      const newSection = {
+        id: guidanceSections.length,
+        title: SECTION_OPTIONS.find(opt => opt.key === selectedSection)?.label || selectedSection,
+        content: response.guidance
+      };
 
-      const result = response.guidance;
-      const parsedSections = parseGuidanceMarkdown(result);
-      const sectionsWithIds = parsedSections.map((sec, index) => ({ ...sec, id: index }));
+      const newGuidanceArray = [...guidanceSections, newSection];
       
-      setOriginalGuidance(sectionsWithIds);
-      setGuidanceSections(sectionsWithIds);
+      setOriginalGuidance(newGuidanceArray); // Keep originalGuidance in sync
+      setGuidanceSections(newGuidanceArray);
 
       setTargetLanguage('en'); 
-      setOpenSectionId(sectionsWithIds.length > 0 ? sectionsWithIds[0].id : null);
+      setOpenSectionId(newSection.id); // Open the newly added section
 
     } catch (err) {
       setError(`Failed to generate guidance: ${err.message}`);
@@ -206,131 +235,162 @@ const UserPortal = () => {
   return (
     <>
       {/* Question Input Section */}
-      <div className="space-y-4">
-        <label htmlFor="question" className="block text-lg font-semibold text-gray-700">
-          Enter UPSC Mains Question:
-        </label>
-        <textarea
-          id="question"
-          className="w-full p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200 resize-y min-h-[120px] text-gray-800"
-          rows="5"
-          placeholder="Type your UPSC Mains question here..."
-          value={question}
-          onChange={(e) => setQuestion(e.target.value)}
-        ></textarea>
-      </div>
-
-      <div className="mt-6">
+      <div className="space-y-6">
         <div>
-          <label className="block text-lg font-semibold text-gray-700 mb-1">Select Word Limit:</label>
-          <div className="flex gap-6">
-            {[150, 250].map(limit => (
-              <label key={limit} className="inline-flex items-center cursor-pointer">
-                <input
-                  type="radio"
-                  className="form-radio text-indigo-600 h-5 w-5"
-                  name="wordLimit"
-                  value={limit}
-                  checked={wordLimit === limit}
-                  onChange={() => setWordLimit(limit)}
-                />
-                <span className="ml-2 text-gray-700 font-medium">{limit} Words</span>
-              </label>
-            ))}
+          <label htmlFor="question" className="block text-lg font-semibold text-gray-700 mb-2">
+            Enter UPSC Mains Question:
+          </label>
+          <textarea
+            id="question"
+            className="w-full p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200 resize-y min-h-[120px] text-gray-800"
+            rows="5"
+            placeholder="Type your UPSC Mains question here..."
+            value={question}
+            onChange={(e) => setQuestion(e.target.value)}
+          />
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            <label className="block text-lg font-semibold text-gray-700 mb-2">Select Word Limit:</label>
+            <div className="flex gap-6 bg-gray-100 p-3 rounded-lg">
+              {[150, 250].map(limit => (
+                <label key={limit} className="inline-flex items-center cursor-pointer">
+                  <input
+                    type="radio"
+                    className="form-radio text-indigo-600 h-5 w-5"
+                    name="wordLimit"
+                    value={limit}
+                    checked={wordLimit === limit}
+                    onChange={() => setWordLimit(limit)}
+                  />
+                  <span className="ml-2 text-gray-700 font-medium">{limit} Words</span>
+                </label>
+              ))}
+            </div>
+          </div>
+
+          <div>
+            <label htmlFor="section-select" className="block text-lg font-semibold text-gray-700 mb-2">Guidance Section:</label>
+            <select
+              id="section-select"
+              value={selectedSection}
+              onChange={(e) => setSelectedSection(e.target.value)}
+              className="w-full rounded-md border-gray-300 shadow-sm px-4 py-3 text-gray-800 focus:ring-2 focus:ring-indigo-500"
+            >
+              <option value="">-- Select Section to Generate --</option>
+              {SECTION_OPTIONS.map(opt => (
+                <option key={opt.key} value={opt.key}>
+                  {opt.label}
+                </option>
+              ))}
+            </select>
           </div>
         </div>
-
-        <div>
-          <label className="block text-lg font-semibold text-gray-700 mb-1">Which Section would you like guidance on?</label>
-          <select
-            value={selectedSection}
-            onChange={(e) => setSelectedSection(e.target.value)}
-            className="w-full rounded-md border-gray-300 px-4 py-2 text-gray-800"
-          >
-            <option value="">-- Select Section --</option>
-            {SECTION_OPTIONS.map(opt => (
-              <option key={opt.key} value={opt.key}>
-                {opt.label}
-              </option>
-            ))}
-          </select>
-        </div>
       </div>
       
-
-      
-
       <button
         onClick={generateSectionGuidance}
-        className={`w-full px-6 py-3 rounded-lg text-white font-bold text-lg transition-all duration-300 ${
+        className={`w-full px-6 py-3 rounded-lg text-white font-bold text-lg transition-all duration-300 mt-6 ${
           loading
             ? 'bg-indigo-400 cursor-not-allowed animate-pulse'
             : 'bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 hover:shadow-md'
         }`}
-        disabled={loading}
+        disabled={loading || !selectedSection}
       >
-        {loading ? 'Generating Guidance...' : 'Get Guidance'}
+        {loading ? 'Generating Guidance...' : 'Get Guidance for Section'}
       </button>
 
       {error && (
-        <div className="p-4 bg-red-100 border border-red-400 text-red-700 rounded-lg" role="alert">
+        <div className="p-4 mt-4 bg-red-100 border border-red-400 text-red-700 rounded-lg" role="alert">
           {error}
         </div>
       )}
 
-      {/* Guidance Accordion Display Section */}
+      {/* Guidance and Feedback Section */}
       {guidanceSections.length > 0 && (
-        <div className="mt-8 p-6 bg-gray-50 rounded-xl border border-gray-200 shadow-inner space-y-4">
-          
-          <div className="flex justify-between items-center mb-4 flex-wrap gap-4">
-            <h2 className="text-2xl font-bold text-indigo-700">UPSC Mains Guidance:</h2>
-            
-            <div className="flex items-center space-x-2">
-              <label htmlFor="language-select" className="text-sm font-medium text-gray-600">Language:</label>
-              <select
-                id="language-select"
-                value={targetLanguage}
-                onChange={(e) => handleLanguageChange(e.target.value)}
-                className="rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
-                disabled={isTranslating || loading}
-              >
-                <option value="en">English</option>
-                <option value="hi">Hindi (हिन्दी)</option>
-                <option value="bn">Bengali (বাংলা)</option>
-                <option value="ta">Tamil (தமிழ்)</option>
-                <option value="te">Telugu (తెలుగు)</option>
-                <option value="mr">Marathi (मराठी)</option>
-              </select>
-              {isTranslating && <span className="text-sm text-indigo-600 animate-pulse">Translating...</span>}
+        <div className="mt-8 space-y-6">
+          <div className="p-6 bg-gray-50 rounded-xl border border-gray-200 shadow-inner space-y-4">
+            <div className="flex justify-between items-center mb-4 flex-wrap gap-4">
+              <h2 className="text-2xl font-bold text-indigo-700">Generated Guidance:</h2>
+              <div className="flex items-center space-x-2">
+                <label htmlFor="language-select" className="text-sm font-medium text-gray-600">Language:</label>
+                <select
+                  id="language-select"
+                  value={targetLanguage}
+                  onChange={(e) => handleLanguageChange(e.target.value)}
+                  className="rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
+                  disabled={isTranslating || loading}
+                >
+                  <option value="en">English</option>
+                  <option value="hi">Hindi (हिन्दी)</option>
+                  <option value="bn">Bengali (বাংলা)</option>
+                  <option value="ta">Tamil (தமிழ்)</option>
+                  <option value="te">Telugu (తెలుగు)</option>
+                  <option value="mr">Marathi (मराठी)</option>
+                </select>
+                {isTranslating && <span className="text-sm text-indigo-600 animate-pulse">Translating...</span>}
+              </div>
             </div>
+            {guidanceSections.map((section) => (
+              <AccordionItem
+                key={section.id}
+                title={section.title}
+                content={section.content}
+                isOpen={openSectionId === section.id}
+                toggleOpen={() => setOpenSectionId(openSectionId === section.id ? null : section.id)}
+              />
+            ))}
           </div>
-          
-          {guidanceSections.map((section) => (
-            <AccordionItem
-              key={section.id}
-              title={section.title}
-              content={section.content}
-              isOpen={openSectionId === section.id}
-              toggleOpen={() => setOpenSectionId(openSectionId === section.id ? null : section.id)}
-            />
-          ))}
 
-          <div className="flex justify-center mt-4 space-x-4">
-            {copyFeedback && (
-               <span className="text-sm text-green-600 self-center">{copyFeedback}</span>
-            )}
+          <div className="mt-4 border-t pt-6">
+            <h3 className="text-xl font-semibold text-gray-800 mb-3">Rate the Latest Guidance</h3>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="md:col-span-1">
+                <label className="block text-sm font-medium mb-1">Your Rating (1–10):</label>
+                <input
+                  type="number"
+                  min="1"
+                  max="10"
+                  className="border p-2 rounded w-full"
+                  value={rating}
+                  onChange={(e) => setRating(e.target.value)}
+                />
+              </div>
+              <div className="md:col-span-2">
+                <label className="block text-sm font-medium mb-1">Optional Comment:</label>
+                <textarea
+                  className="border p-2 rounded w-full"
+                  placeholder="Your feedback helps us improve..."
+                  value={comment}
+                  onChange={(e) => setComment(e.target.value)}
+                />
+              </div>
+            </div>
             <button
-              onClick={() => handleCopyGuidance()}
-              className="px-4 py-2 rounded-lg bg-blue-500 text-white font-semibold hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              onClick={submitFeedback}
+              className="bg-green-600 text-white px-4 py-2 rounded mt-3 font-semibold hover:bg-green-700"
             >
-              Copy All Guidance
+              Submit Feedback
             </button>
-            <button
-              onClick={handleReset}
-              className="px-4 py-2 rounded-lg bg-red-500 text-white font-semibold hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500"
-            >
-              Start New Question
-            </button>
+          </div>
+
+          <div className="flex justify-center mt-6 space-x-4 border-t pt-6">
+              {copyFeedback && (
+                <span className="text-sm text-green-600 self-center">{copyFeedback}</span>
+              )}
+              <button
+                onClick={() => handleCopyGuidance()}
+                className="px-4 py-2 rounded-lg bg-blue-500 text-white font-semibold hover:bg-blue-600"
+              >
+                Copy All Guidance
+              </button>
+              <button
+                onClick={handleReset}
+                className="px-4 py-2 rounded-lg bg-red-500 text-white font-semibold hover:bg-red-600"
+              >
+                Reset
+              </button>
           </div>
         </div>
       )}
