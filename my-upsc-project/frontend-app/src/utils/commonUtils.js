@@ -9,7 +9,6 @@ export const sampleQuestions = [
   { id: 5, text: "Highlight the ethical dilemmas associated with the rapid advancements in Artificial Intelligence and suggest a framework for responsible AI development.", topic: "Ethics", wordLimit: 250 },
 ];
 
-
 // Evaluation Matrix data (copied from evaluation_matrix.py)
 export const EVALUATION_MATRIX = {
   "overall_answer_competence": {
@@ -185,7 +184,8 @@ export const callBackendApi = async (endpoint, data) => {
   try {
     const response = await fetch(backendUrl, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json'
+      },
       body: JSON.stringify(data)
     });
 

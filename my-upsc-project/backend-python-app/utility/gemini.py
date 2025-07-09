@@ -1,5 +1,8 @@
 from utility.config import get_gemini_api_key
 import requests,json
+from fastapi import Request
+from fastapi.exceptions import HTTPException
+from utility.logger import logger
 
 GEMINI_API_KEY = get_gemini_api_key()
 
@@ -27,15 +30,14 @@ def call_gemini_api(prompt_messages):
         if result.get('candidates') and result['candidates'][0].get('content') and result['candidates'][0]['content'].get('parts'):
             return result['candidates'][0]['content']['parts'][0]['text']
         else:
-            print(f"LLM response structure unexpected: {json.dumps(result, indent=2)}")
-            raise Exception("LLM did not return a valid response or content.")
+            logger.error(f"LLM response structure unexpected: {json.dumps(result, indent=2)}")
+            raise HTTPException(status_code=500, detail="An internal server error occurred.")
     except requests.exceptions.RequestException as e:
-        print(f"An error occurred during the API request: {e}")
-        raise
+        logger.error(f"Failed to decode JSON response from API: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail="An internal server error occurred.")
     except json.JSONDecodeError as e:
-        print(f"Failed to decode JSON response from API: {e}")
-        print(f"API Response Text: {response.text}")
-        raise
+        logger.error(f"Failed to decode JSON response from API: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail="An internal server error occurred.")
     except Exception as e:
-        print(f"An unexpected error occurred: {e}")
-        raise
+        logger.error(f"An unexpected error occurred: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail="An internal server error occurred.")

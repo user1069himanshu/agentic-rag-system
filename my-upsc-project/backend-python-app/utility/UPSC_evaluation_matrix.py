@@ -1,5 +1,6 @@
 # answer_model/evaluation_matrix.py
-
+from utility.logger import logger
+from fastapi import HTTPException
 """
 This module defines the Ideal Answer Evaluation Matrix for UPSC Mains,
 based on the "AW 2_Mentor's Reference Document (1).pdf".
@@ -192,31 +193,31 @@ def get_evaluation_criteria(component: str = None):
         if key in matrix:
             return matrix[key]
         else:
-            print(f"Warning: Component '{component}' not found. Returning full matrix.")
-            return matrix
+            logger.error(f"Warning: Component '{component}' not found in matrix.")
+            raise HTTPException(status_code=500, detail=str(Exception))
     return matrix
 
-if __name__ == "__main__":
-    # Example Usage:
-    print("--- Full Evaluation Matrix ---")
-    # import json
-    # print(json.dumps(get_evaluation_criteria(), indent=2)) # Uncomment to print full matrix
+# if __name__ == "__main__":
+#     # Example Usage:
+#     print("--- Full Evaluation Matrix ---")
+#     # import json
+#     # print(json.dumps(get_evaluation_criteria(), indent=2)) # Uncomment to print full matrix
 
-    print("\n--- Introduction Competence Criteria ---")
-    intro_criteria = get_evaluation_criteria("introduction_competence")
-    print(f"General Word Limit Rule: {intro_criteria['word_limit_time']['general_rule_percentage']}")
-    print("Introduction Types:")
-    for type_info in intro_criteria['types']:
-        print(f"  - {type_info['name']}: {type_info['description']} (Used for: {', '.join(type_info['utilization'])})")
+#     print("\n--- Introduction Competence Criteria ---")
+#     intro_criteria = get_evaluation_criteria("introduction_competence")
+#     print(f"General Word Limit Rule: {intro_criteria['word_limit_time']['general_rule_percentage']}")
+#     print("Introduction Types:")
+#     for type_info in intro_criteria['types']:
+#         print(f"  - {type_info['name']}: {type_info['description']} (Used for: {', '.join(type_info['utilization'])})")
 
-    print("\n--- Conclusion Competence Criteria ---")
-    concl_criteria = get_evaluation_criteria("conclusion_competence")
-    print(f"Conclusion Aim: {concl_criteria['aim_purpose'][0]}")
-    print("Conclusion Types:")
-    for type_info in concl_criteria['types']:
-        print(f"  - {type_info['name']}: {type_info['description']} (Used for: {', '.join(type_info['utilization'])})")
+#     print("\n--- Conclusion Competence Criteria ---")
+#     concl_criteria = get_evaluation_criteria("conclusion_competence")
+#     print(f"Conclusion Aim: {concl_criteria['aim_purpose'][0]}")
+#     print("Conclusion Types:")
+#     for type_info in concl_criteria['types']:
+#         print(f"  - {type_info['name']}: {type_info['description']} (Used for: {', '.join(type_info['utilization'])})")
 
-    print("\n--- Distinction: Conclusion vs. Way Forward ---")
-    distinction = concl_criteria['distinction_from_way_forward']
-    print(f"Way Forward Nature: {distinction['way_forward_nature']}")
-    print(f"Conclusion Nature: {distinction['conclusion_nature']}")
+#     print("\n--- Distinction: Conclusion vs. Way Forward ---")
+#     distinction = concl_criteria['distinction_from_way_forward']
+#     print(f"Way Forward Nature: {distinction['way_forward_nature']}")
+#     print(f"Conclusion Nature: {distinction['conclusion_nature']}")

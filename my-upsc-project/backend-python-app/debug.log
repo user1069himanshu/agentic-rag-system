@@ -1,0 +1,90 @@
+2025-07-09 15:57:52,718 [INFO] Generating guidance for section 'question_deconstruction'
+2025-07-09 15:57:52,759 [ERROR] An error occurred in /generate_section: 'coroutine' object is not subscriptable
+Traceback (most recent call last):
+  File "C:\Users\Vision IAS\Himanshu\my-upsc-project\backend-python-app\backend_server.py", line 77, in generate_section_guidance
+    guidance = generate_specific_section(payload.question, payload.section, payload.wordLimit)
+  File "C:\Users\Vision IAS\Himanshu\my-upsc-project\backend-python-app\utility\prompts.py", line 118, in generate_specific_section
+    - Wholesome Nature: {get_evaluation_criteria('overall_answer_competence')['wholesome_nature']}
+                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^
+TypeError: 'coroutine' object is not subscriptable
+2025-07-09 16:07:25,769 [INFO] Generating guidance for section 'question_deconstruction'
+2025-07-09 16:07:25,770 [ERROR] An error occurred in /generate_section: 'wholesome_nature'
+Traceback (most recent call last):
+  File "C:\Users\Vision IAS\Himanshu\my-upsc-project\backend-python-app\backend_server.py", line 77, in generate_section_guidance
+    guidance = generate_specific_section(payload.question, payload.section, payload.wordLimit)
+  File "C:\Users\Vision IAS\Himanshu\my-upsc-project\backend-python-app\utility\prompts.py", line 118, in generate_specific_section
+    - Wholesome Nature: {get_evaluation_criteria('overall_answer_competence')['wholesome_nature']}
+                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^
+KeyError: 'wholesome_nature'
+2025-07-09 16:11:20,900 [INFO] Generating guidance for section 'question_deconstruction'
+2025-07-09 16:11:20,900 [ERROR] An error occurred in /generate_section: 'wholesome_nature'
+Traceback (most recent call last):
+  File "C:\Users\Vision IAS\Himanshu\my-upsc-project\backend-python-app\backend_server.py", line 77, in generate_section_guidance
+    guidance = generate_specific_section(payload.question, payload.section, payload.wordLimit)
+  File "C:\Users\Vision IAS\Himanshu\my-upsc-project\backend-python-app\utility\prompts.py", line 118, in generate_specific_section
+    - Wholesome Nature: {get_evaluation_criteria('overall_answer_competence')['wholesome_nature']}
+                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^
+KeyError: 'wholesome_nature'
+2025-07-09 16:16:05,601 [INFO] Generating guidance for section 'question_deconstruction'
+2025-07-09 16:16:05,602 [ERROR] An error occurred in /generate_section: 'wholesome_nature'
+Traceback (most recent call last):
+  File "C:\Users\Vision IAS\Himanshu\my-upsc-project\backend-python-app\backend_server.py", line 77, in generate_section_guidance
+    guidance = generate_specific_section(payload.question, payload.section, payload.wordLimit)
+  File "C:\Users\Vision IAS\Himanshu\my-upsc-project\backend-python-app\utility\prompts.py", line 118, in generate_specific_section
+    - Wholesome Nature: {get_evaluation_criteria('overall_answer_competence')['wholesome_nature']}
+                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^
+KeyError: 'wholesome_nature'
+2025-07-09 16:32:50,519 [INFO] Generating guidance for section 'question_deconstruction'
+2025-07-09 16:32:50,519 [ERROR] An error occurred in /generate_section: 'str' object has no attribute 'url'
+Traceback (most recent call last):
+  File "C:\Users\Vision IAS\Himanshu\my-upsc-project\backend-python-app\backend_server.py", line 77, in generate_section_guidance
+    guidance = generate_specific_section(payload.question, payload.section, payload.wordLimit)
+  File "C:\Users\Vision IAS\Himanshu\my-upsc-project\backend-python-app\utility\prompts.py", line 118, in generate_specific_section
+    - Wholesome Nature: {get_evaluation_criteria('overall_answer_competence')['wholesome_nature']}
+                         ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Vision IAS\Himanshu\my-upsc-project\backend-python-app\utility\UPSC_evaluation_matrix.py", line 199, in get_evaluation_criteria
+    logger.error(f"Warning: Component '{component}' not received. Error in {request.url.path}: {Exception}", exc_info=True)
+                                                                            ^^^^^^^^^^^
+AttributeError: 'str' object has no attribute 'url'
+2025-07-09 16:43:05,478 [INFO] Generating guidance for section 'question_deconstruction'
+2025-07-09 16:43:05,478 [ERROR] An error occurred in /generate_section: 'wholesome_nature'
+Traceback (most recent call last):
+  File "C:\Users\Vision IAS\Himanshu\my-upsc-project\backend-python-app\backend_server.py", line 77, in generate_section_guidance
+    guidance = generate_specific_section(payload.question, payload.section, payload.wordLimit)
+  File "C:\Users\Vision IAS\Himanshu\my-upsc-project\backend-python-app\utility\prompts.py", line 118, in generate_specific_section
+    - Wholesome Nature: {get_evaluation_criteria('overall_answer_competence')['wholesome_nature']}
+                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^
+KeyError: 'wholesome_nature'
+2025-07-09 16:52:41,755 [INFO] Generating guidance for section 'question_deconstruction'
+2025-07-09 16:52:41,755 [ERROR] An error occurred in /generate_section: call_gemini_api() missing 1 required positional argument: 'request'
+Traceback (most recent call last):
+  File "C:\Users\Vision IAS\Himanshu\my-upsc-project\backend-python-app\backend_server.py", line 77, in generate_section_guidance
+    guidance = generate_specific_section(payload.question, payload.section, payload.wordLimit)
+  File "C:\Users\Vision IAS\Himanshu\my-upsc-project\backend-python-app\utility\prompts.py", line 149, in generate_specific_section
+    return call_gemini_api(chat_history)
+TypeError: call_gemini_api() missing 1 required positional argument: 'request'
+2025-07-09 16:55:36,846 [INFO] Generating guidance for section 'introduction'
+2025-07-09 16:55:36,846 [ERROR] An error occurred in /generate_section: call_gemini_api() missing 1 required positional argument: 'request'
+Traceback (most recent call last):
+  File "C:\Users\Vision IAS\Himanshu\my-upsc-project\backend-python-app\backend_server.py", line 77, in generate_section_guidance
+    guidance = generate_specific_section(payload.question, payload.section, payload.wordLimit)
+  File "C:\Users\Vision IAS\Himanshu\my-upsc-project\backend-python-app\utility\prompts.py", line 200, in generate_specific_section
+    return call_gemini_api(chat_history)
+TypeError: call_gemini_api() missing 1 required positional argument: 'request'
+2025-07-09 16:59:15,787 [INFO] Generating guidance for section 'introduction'
+2025-07-09 16:59:15,788 [ERROR] An error occurred in /generate_section: call_gemini_api() missing 1 required positional argument: 'request'
+Traceback (most recent call last):
+  File "C:\Users\Vision IAS\Himanshu\my-upsc-project\backend-python-app\backend_server.py", line 77, in generate_section_guidance
+    guidance = generate_specific_section(payload.question, payload.section, payload.wordLimit)
+  File "C:\Users\Vision IAS\Himanshu\my-upsc-project\backend-python-app\utility\prompts.py", line 200, in generate_specific_section
+    return call_gemini_api(chat_history)
+TypeError: call_gemini_api() missing 1 required positional argument: 'request'
+2025-07-09 17:06:39,284 [INFO] Generating guidance for section 'introduction'
+2025-07-09 17:06:39,285 [ERROR] An error occurred in /generate_section: call_gemini_api() missing 1 required positional argument: 'request'
+Traceback (most recent call last):
+  File "C:\Users\Vision IAS\Himanshu\my-upsc-project\backend-python-app\backend_server.py", line 77, in generate_section_guidance
+    guidance = generate_specific_section(payload.question, payload.section, payload.wordLimit)
+  File "C:\Users\Vision IAS\Himanshu\my-upsc-project\backend-python-app\utility\prompts.py", line 200, in generate_specific_section
+    return call_gemini_api(chat_history)
+TypeError: call_gemini_api() missing 1 required positional argument: 'request'
+2025-07-09 17:07:02,683 [INFO] Generating guidance for section 'introduction'

@@ -6,6 +6,7 @@ from utility.UPSC_evaluation_matrix import (
 )
 from utility.gemini import call_gemini_api
 import json
+from utility.logger import logger
 
 def generate_upsc_guidance_logic(question: str, word_limit: int = 150):
     """
@@ -128,7 +129,7 @@ def generate_specific_section(question: str, section: str, word_limit : int =150
         ### 2. Value Addition Points
         [Suggest specific additional points like relevant articles, reports, committees, data, recent events, key terms that can enhance the answer.]
 
-        ### 2. Common Pitfalls to Avoid
+        ### 3. Common Pitfalls to Avoid
         [List 3-5 common mistakes relevant to the question or general UPSC Civil Services (Main) answer writing that students should avoid.]
 
         ### 4. Word Limit Suggestion
@@ -178,7 +179,7 @@ def generate_specific_section(question: str, section: str, word_limit : int =150
         ### 2. Value Addition Points
         [Suggest specific additional points like relevant articles, reports, committees, data, recent events, key terms that can enhance the answer.]
 
-        ### 2. Common Pitfalls to Avoid
+        ### 3. Common Pitfalls to Avoid
         [List 3-5 common mistakes relevant to the question or general UPSC Civil Services (Main) answer writing that students should avoid.]
 
         ### 4. Word Limit Suggestion
@@ -199,6 +200,9 @@ def generate_specific_section(question: str, section: str, word_limit : int =150
         return call_gemini_api(chat_history)
     
     if section.lower() == "body":
+
+        intro_wl_info = INTRODUCTION_COMPETENCE['word_limit_time'][f"{word_limit}_words_question"]
+        concl_wl_info = CONCLUSION_COMPETENCE['word_limit_time'][f"{word_limit}_words_question"]
 
         system_prompt = f"""
         You are an expert UPSC Civil Services (Main) examiner for VisionIAS. Your task is to provide comprehensive,
@@ -226,7 +230,7 @@ def generate_specific_section(question: str, section: str, word_limit : int =150
         ### 2. Value Addition Points
         [Suggest specific additional points like relevant articles, reports, committees, data, recent events, key terms that can enhance the answer.]
 
-        ### 2. Common Pitfalls to Avoid
+        ### 3. Common Pitfalls to Avoid
         [List 3-5 common mistakes relevant to the question or general UPSC Civil Services (Main) answer writing that students should avoid.]
 
         ### 4. Word Limit Suggestion
@@ -276,7 +280,7 @@ def generate_specific_section(question: str, section: str, word_limit : int =150
         ### 2. Value Addition Points
         [Suggest specific additional points like relevant articles, reports, committees, data, recent events, key terms that can enhance the answer.]
 
-        ### 2. Common Pitfalls to Avoid
+        ### 3. Common Pitfalls to Avoid
         [List 3-5 common mistakes relevant to the question or general UPSC Civil Services (Main) answer writing that students should avoid.]
 
         ### 4. Word Limit Suggestion
@@ -297,5 +301,4 @@ def generate_specific_section(question: str, section: str, word_limit : int =150
         return call_gemini_api(chat_history)
 
 if __name__ == "__main__":
-    # Example Usage:
-    print("Promt message Ready")
+    logger.info("Prompts.py health Cheackup")

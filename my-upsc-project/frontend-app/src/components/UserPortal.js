@@ -13,7 +13,7 @@ const SECTION_OPTIONS = [
 
 // This is a simple accordion item component for cleaner code
 const AccordionItem = ({ title, content, isOpen, toggleOpen }) => {
-  // ... (This formatting logic remains the same)
+  
   const formattedContent = content
     .replace(/\*\*/g, '') 
     .replace(/\s+/g, ' ')
@@ -36,7 +36,6 @@ const AccordionItem = ({ title, content, isOpen, toggleOpen }) => {
     .replace(/\* /g, '||BREAK||* ')
     .replace(/\n/g, ' ')
     .replace(/\|\|BREAK\|\|/g, '\n\n');
-
 
   return (
     <div className="border border-gray-300 rounded-lg overflow-hidden mb-4 shadow-sm">
@@ -78,11 +77,8 @@ const UserPortal = () => {
   const [rating, setRating] = useState('');
   const [comment, setComment] = useState('');
 
-  // --- NEW: Corrected submitFeedback function ---
   const submitFeedback = async () => {
-    // Find the most recent guidance section to submit feedback for
     const latestSection = guidanceSections[guidanceSections.length - 1];
-
     if (!latestSection) {
       setError("No guidance has been generated yet to submit feedback for.");
       return;
@@ -91,8 +87,6 @@ const UserPortal = () => {
       setError("Please provide a rating (1-10) before submitting.");
       return;
     }
-
-    // This is the correct data structure the backend expects
     const feedbackPayload = {
       question: question,
       section: latestSection.title,
@@ -100,56 +94,43 @@ const UserPortal = () => {
       rating: Number(rating),
       comment: comment
     };
-
     try {
-      // This is the correct way to call the helper function
       const response = await callBackendApi("submit_feedback", feedbackPayload);
-      alert(response.message || "Thank you for your feedback!"); // Show success message
-      setRating(''); // Clear the form after successful submission
+      alert(response.message || "Thank you for your feedback!");
+      setRating('');
       setComment('');
       setError('');
     } catch (err) {
-      // The catch block in callBackendApi will re-throw the error
-      // so we can display it here.
       setError(`Failed to submit feedback. ${err.message}`);
     }
   };
-
 
   const generateSectionGuidance = async () => {
     if (!question.trim() || !selectedSection) {
       setError('Please enter a UPSC question and select a section.');
       return;
     }
-
     setLoading(true);
     setError('');
-    // Do not clear all guidance sections, instead we will append
-    // setGuidanceSections([]); 
     setCopyFeedback('');
     setOpenSectionId(null);
-
     try {
       const response = await callBackendApi('generate_section', {
         question: question,
         wordLimit: wordLimit,
         section: selectedSection,
       });
-
-      const newSection = {
-        id: guidanceSections.length,
-        title: SECTION_OPTIONS.find(opt => opt.key === selectedSection)?.label || selectedSection,
-        content: response.guidance
-      };
-
-      const newGuidanceArray = [...guidanceSections, newSection];
-      
-      setOriginalGuidance(newGuidanceArray); // Keep originalGuidance in sync
+      const parsedSubSections = parseGuidanceMarkdown(response.guidance);
+      const newSections = parsedSubSections.map((sec, index) => ({
+        id: guidanceSections.length + index,
+        title: sec.title,
+        content: sec.content
+      }));
+      const newGuidanceArray = [...guidanceSections, ...newSections];
+      setOriginalGuidance(newGuidanceArray);
       setGuidanceSections(newGuidanceArray);
-
-      setTargetLanguage('en'); 
-      setOpenSectionId(newSection.id); // Open the newly added section
-
+      setTargetLanguage('en');
+      setOpenSectionId(newSections.length > 0 ? newSections[0].id : null);
     } catch (err) {
       setError(`Failed to generate guidance: ${err.message}`);
     } finally {
@@ -159,33 +140,25 @@ const UserPortal = () => {
   
   const handleLanguageChange = async (newLang) => {
     setTargetLanguage(newLang);
-
     if (newLang === 'en') {
       setGuidanceSections(originalGuidance);
       return;
     }
-
     if (originalGuidance.length === 0) return;
-
     setIsTranslating(true);
     setError('');
-
     try {
       let combinedText = "";
       originalGuidance.forEach(section => {
           combinedText += `### ${section.title}\n${section.content}\n\n`;
       });
-
       const response = await callBackendApi('translate', {
-        text: combinedText,
-        language: newLang,
+        text: combinedText, language: newLang,
       });
-
       const translatedText = response.translatedText;
       const parsedSections = parseGuidanceMarkdown(translatedText);
       const sectionsWithIds = parsedSections.map((sec, index) => ({ ...sec, id: index }));
       setGuidanceSections(sectionsWithIds);
-
     } catch (err) {
       setError(`Failed to translate guidance: ${err.message}. Please try again.`);
       setGuidanceSections(originalGuidance); 
@@ -194,17 +167,11 @@ const UserPortal = () => {
     }
   };
 
-
   const handleReset = () => {
-    setQuestion('');
-    setWordLimit(150);
-    setSelectedSection('');
-    setGuidanceSections([]);
-    setOriginalGuidance([]);
-    setOpenSectionId(null);
-    setError('');
-    setCopyFeedback('');
-    setTargetLanguage('en');
+    setQuestion(''); setWordLimit(150); setSelectedSection('');
+    setGuidanceSections([]); setOriginalGuidance([]);
+    setOpenSectionId(null); setError(''); setCopyFeedback('');
+    setTargetLanguage('en'); setRating(''); setComment('');
   };
 
   const handleCopyGuidance = () => {
@@ -212,7 +179,6 @@ const UserPortal = () => {
     guidanceSections.forEach(section => {
       textToCopy += `### ${section.title}\n${section.content}\n\n`;
     });
-
     if (textToCopy.trim()) {
         const textarea = document.createElement('textarea');
         textarea.value = textToCopy;
@@ -231,7 +197,6 @@ const UserPortal = () => {
     }
   };
 
-
   return (
     <>
       {/* Question Input Section */}
@@ -247,57 +212,36 @@ const UserPortal = () => {
             placeholder="Type your UPSC Mains question here..."
             value={question}
             onChange={(e) => setQuestion(e.target.value)}
-          />
+          ></textarea>
         </div>
-
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
             <label className="block text-lg font-semibold text-gray-700 mb-2">Select Word Limit:</label>
             <div className="flex gap-6 bg-gray-100 p-3 rounded-lg">
               {[150, 250].map(limit => (
                 <label key={limit} className="inline-flex items-center cursor-pointer">
-                  <input
-                    type="radio"
-                    className="form-radio text-indigo-600 h-5 w-5"
-                    name="wordLimit"
-                    value={limit}
-                    checked={wordLimit === limit}
-                    onChange={() => setWordLimit(limit)}
-                  />
+                  <input type="radio" className="form-radio text-indigo-600 h-5 w-5" name="wordLimit" value={limit}
+                    checked={wordLimit === limit} onChange={() => setWordLimit(limit)} />
                   <span className="ml-2 text-gray-700 font-medium">{limit} Words</span>
                 </label>
               ))}
             </div>
           </div>
-
           <div>
             <label htmlFor="section-select" className="block text-lg font-semibold text-gray-700 mb-2">Guidance Section:</label>
-            <select
-              id="section-select"
-              value={selectedSection}
-              onChange={(e) => setSelectedSection(e.target.value)}
-              className="w-full rounded-md border-gray-300 shadow-sm px-4 py-3 text-gray-800 focus:ring-2 focus:ring-indigo-500"
-            >
+            <select id="section-select" value={selectedSection} onChange={(e) => setSelectedSection(e.target.value)}
+              className="w-full rounded-md border-gray-300 shadow-sm px-4 py-3 text-gray-800 focus:ring-2 focus:ring-indigo-500">
               <option value="">-- Select Section to Generate --</option>
-              {SECTION_OPTIONS.map(opt => (
-                <option key={opt.key} value={opt.key}>
-                  {opt.label}
-                </option>
-              ))}
+              {SECTION_OPTIONS.map(opt => (<option key={opt.key} value={opt.key}>{opt.label}</option>))}
             </select>
           </div>
         </div>
       </div>
-      
-      <button
-        onClick={generateSectionGuidance}
+      <button onClick={generateSectionGuidance}
         className={`w-full px-6 py-3 rounded-lg text-white font-bold text-lg transition-all duration-300 mt-6 ${
-          loading
-            ? 'bg-indigo-400 cursor-not-allowed animate-pulse'
-            : 'bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 hover:shadow-md'
+          loading ? 'bg-indigo-400 cursor-not-allowed animate-pulse' : 'bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 hover:shadow-md'
         }`}
-        disabled={loading || !selectedSection}
-      >
+        disabled={loading || !selectedSection}>
         {loading ? 'Generating Guidance...' : 'Get Guidance for Section'}
       </button>
 
@@ -315,31 +259,18 @@ const UserPortal = () => {
               <h2 className="text-2xl font-bold text-indigo-700">Generated Guidance:</h2>
               <div className="flex items-center space-x-2">
                 <label htmlFor="language-select" className="text-sm font-medium text-gray-600">Language:</label>
-                <select
-                  id="language-select"
-                  value={targetLanguage}
-                  onChange={(e) => handleLanguageChange(e.target.value)}
+                <select id="language-select" value={targetLanguage} onChange={(e) => handleLanguageChange(e.target.value)}
                   className="rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
-                  disabled={isTranslating || loading}
-                >
-                  <option value="en">English</option>
-                  <option value="hi">Hindi (हिन्दी)</option>
-                  <option value="bn">Bengali (বাংলা)</option>
-                  <option value="ta">Tamil (தமிழ்)</option>
-                  <option value="te">Telugu (తెలుగు)</option>
-                  <option value="mr">Marathi (मराठी)</option>
+                  disabled={isTranslating || loading}>
+                  <option value="en">English</option><option value="hi">Hindi (हिन्दी)</option><option value="bn">Bengali (বাংলা)</option>
+                  <option value="ta">Tamil (தமிழ்)</option><option value="te">Telugu (తెలుగు)</option><option value="mr">Marathi (मराठी)</option>
                 </select>
                 {isTranslating && <span className="text-sm text-indigo-600 animate-pulse">Translating...</span>}
               </div>
             </div>
             {guidanceSections.map((section) => (
-              <AccordionItem
-                key={section.id}
-                title={section.title}
-                content={section.content}
-                isOpen={openSectionId === section.id}
-                toggleOpen={() => setOpenSectionId(openSectionId === section.id ? null : section.id)}
-              />
+              <AccordionItem key={section.id} title={section.title} content={section.content}
+                isOpen={openSectionId === section.id} toggleOpen={() => setOpenSectionId(openSectionId === section.id ? null : section.id)} />
             ))}
           </div>
 
@@ -349,28 +280,20 @@ const UserPortal = () => {
               <div className="md:col-span-1">
                 <label className="block text-sm font-medium mb-1">Your Rating (1–10):</label>
                 <input
-                  type="number"
-                  min="1"
-                  max="10"
-                  className="border p-2 rounded w-full"
-                  value={rating}
-                  onChange={(e) => setRating(e.target.value)}
+                  type="number" min="1" max="10" className="border p-2 rounded w-full"
+                  value={rating} onChange={(e) => setRating(e.target.value)}
                 />
               </div>
               <div className="md:col-span-2">
                 <label className="block text-sm font-medium mb-1">Optional Comment:</label>
                 <textarea
-                  className="border p-2 rounded w-full"
-                  placeholder="Your feedback helps us improve..."
-                  value={comment}
-                  onChange={(e) => setComment(e.target.value)}
+                  className="border p-2 rounded w-full" placeholder="Your feedback helps us improve..."
+                  value={comment} onChange={(e) => setComment(e.target.value)}
                 />
               </div>
             </div>
-            <button
-              onClick={submitFeedback}
-              className="bg-green-600 text-white px-4 py-2 rounded mt-3 font-semibold hover:bg-green-700"
-            >
+            <button onClick={submitFeedback}
+              className="bg-green-600 text-white px-4 py-2 rounded mt-3 font-semibold hover:bg-green-700">
               Submit Feedback
             </button>
           </div>
@@ -379,16 +302,12 @@ const UserPortal = () => {
               {copyFeedback && (
                 <span className="text-sm text-green-600 self-center">{copyFeedback}</span>
               )}
-              <button
-                onClick={() => handleCopyGuidance()}
-                className="px-4 py-2 rounded-lg bg-blue-500 text-white font-semibold hover:bg-blue-600"
-              >
+              <button onClick={handleCopyGuidance}
+                className="px-4 py-2 rounded-lg bg-blue-500 text-white font-semibold hover:bg-blue-600">
                 Copy All Guidance
               </button>
-              <button
-                onClick={handleReset}
-                className="px-4 py-2 rounded-lg bg-red-500 text-white font-semibold hover:bg-red-600"
-              >
+              <button onClick={handleReset}
+                className="px-4 py-2 rounded-lg bg-red-500 text-white font-semibold hover:bg-red-600">
                 Reset
               </button>
           </div>
