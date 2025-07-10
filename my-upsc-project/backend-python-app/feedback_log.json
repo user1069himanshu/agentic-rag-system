@@ -43,5 +43,32 @@
     "rating": 3,
     "comment": "Worst",
     "status": "reject"
+  },
+  {
+    "id": "01899781-d8e3-4294-a850-3fbfc0cf7acb",
+    "question": "Critically analyse the effectiveness of the POCSO Act, 2012 in addressing the issue of child sexual abuse \nin India. ",
+    "guidance": "For a 150-word answer:\n    Introduction: 20-25 words\n    Body: ~110 words (approximate)\n    Conclusion: 20-25 words",
+    "section": "4. Word Limit Suggestion",
+    "rating": 8,
+    "comment": "Pretty Good\n",
+    "status": "reject"
+  },
+  {
+    "id": "c917c9bd-2c26-4be4-8e65-a58c65b55e88",
+    "question": "Critically analyse the effectiveness of the POCSO Act, 2012 in addressing the issue of child sexual abuse \nin India. ",
+    "guidance": "For a 150-word answer:\n    Introduction: 20-25 words\n    Body: ~110 words (approximate)\n    Conclusion: 20-25 words",
+    "section": "4. Word Limit Suggestion",
+    "rating": 6,
+    "comment": "Poor\n",
+    "status": "reject"
+  },
+  {
+    "id": "6d9ed3c9-490a-4233-b0a7-9cd8f9824ea4",
+    "question": "Critically analyse the effectiveness of the POCSO Act, 2012 in addressing the issue of child sexual abuse \nin India. ",
+    "guidance": "For a 150-word answer:\n    Introduction: 20-25 words\n    Body: ~110 words (approximate)\n    Conclusion: 20-25 words",
+    "section": "4. Word Limit Suggestion",
+    "rating": 5,
+    "comment": "Okkiesh",
+    "status": "reject"
   }
 ]

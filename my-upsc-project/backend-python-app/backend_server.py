@@ -43,6 +43,9 @@ class FeedbackEntry(BaseModel):
     rating: int = Field(..., ge=1, le=10)
     comment: str
 
+class Feedbackstatus(BaseModel):
+    comment: str
+
 
 FEEDBACK_FILE = Path("feedback_log.json")
 
@@ -175,6 +178,37 @@ async def moderate_feedback(id: str, action: str, request: Request):
         logger.error(f"Error in {request.url.path}: {e}", exc_info=True)
         raise HTTPException(status_code=500, detail=str(e))
 
+
+@app.get("/feedback_by_status")
+async def get_feedback_by_status(status: str, request: Request):
+    try:
+        # --- ADD THIS DETAILED LOGGING ---
+        logger.info(f"--- Received request for /feedback_by_status. Raw status value: '{status}' ---")
+        cleaned_status = status.strip().lower()
+        logger.info(f"--- Cleaned status value for comparison: '{cleaned_status}' ---")
+        
+        # This is the validation check
+        if cleaned_status not in ["approve", "reject"]:
+            logger.error(f"VALIDATION FAILED: The cleaned status '{cleaned_status}' is not one of 'approve' or 'reject'.")
+            raise HTTPException(status_code=400, detail="Invalid status. Must be 'approve' or 'reject'.")
+        
+        if not FEEDBACK_FILE.is_file():
+            return []
+
+        all_feedback = json.loads(FEEDBACK_FILE.read_text())
+        
+        # Use the cleaned status for filtering
+        filtered_list = [fb for fb in all_feedback if fb.get('status') == cleaned_status]
+
+        logger.info(f"--- Filtered list contains {len(filtered_list)} items. ---")
+        return filtered_list
+        
+    except Exception as e:
+        logger.error(f"Error in {request.url.path}: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail="An internal server error occurred.")
+
+
+
 @app.get("/feedback_stats"  )
 async def get_feedback_stats(request: Request):
     try:
@@ -189,6 +223,8 @@ async def get_feedback_stats(request: Request):
     except Exception as e:
         logger.error(f"Error in {request.url.path}: {e}", exc_info=True)
         raise HTTPException(status_code=500, detail=str(e))
+
+
 
 # --- Run the Flask App ---
 if __name__ == '__main__':

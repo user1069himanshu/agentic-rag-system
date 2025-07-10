@@ -88,3 +88,170 @@ Traceback (most recent call last):
     return call_gemini_api(chat_history)
 TypeError: call_gemini_api() missing 1 required positional argument: 'request'
 2025-07-09 17:07:02,683 [INFO] Generating guidance for section 'introduction'
+2025-07-10 11:06:02,168 [INFO] Generating guidance for section 'question_deconstruction'
+2025-07-10 11:06:18,096 [INFO] Generating guidance for section '4. Word Limit Suggestion'
+2025-07-10 11:06:18,116 [INFO] New feedback submitted with ID: 01899781-d8e3-4294-a850-3fbfc0cf7acb
+2025-07-10 11:06:38,785 [INFO] Fetched 1 pending feedback items.
+2025-07-10 11:06:48,031 [INFO] Feedback has been updated
+2025-07-10 11:06:48,060 [INFO] Fetched 0 pending feedback items.
+2025-07-10 11:45:28,487 [INFO] Fetched 0 pending feedback items.
+2025-07-10 11:45:56,431 [INFO] Generating guidance for section '4. Word Limit Suggestion'
+2025-07-10 11:45:56,433 [INFO] New feedback submitted with ID: c917c9bd-2c26-4be4-8e65-a58c65b55e88
+2025-07-10 11:46:07,988 [INFO] Fetched 1 pending feedback items.
+2025-07-10 11:46:12,456 [INFO] Feedback has been updated
+2025-07-10 11:46:12,474 [ERROR] Error in /feedback_by_status: name 'fb' is not defined
+Traceback (most recent call last):
+  File "C:\Users\Vision IAS\Himanshu\my-upsc-project\backend-python-app\backend_server.py", line 191, in get_feedback_by_status
+    filtered_list = [fb for fb in fb.get('status')=="status"]
+                                  ^^
+NameError: name 'fb' is not defined
+2025-07-10 11:46:12,479 [ERROR] Error in /feedback_by_status: name 'fb' is not defined
+Traceback (most recent call last):
+  File "C:\Users\Vision IAS\Himanshu\my-upsc-project\backend-python-app\backend_server.py", line 191, in get_feedback_by_status
+    filtered_list = [fb for fb in fb.get('status')=="status"]
+                                  ^^
+NameError: name 'fb' is not defined
+2025-07-10 11:46:12,481 [INFO] Fetched 0 pending feedback items.
+2025-07-10 12:25:01,975 [INFO] Fetched 0 pending feedback items.
+2025-07-10 12:36:13,839 [INFO] Generating guidance for section '4. Word Limit Suggestion'
+2025-07-10 12:36:13,844 [INFO] New feedback submitted with ID: 6d9ed3c9-490a-4233-b0a7-9cd8f9824ea4
+2025-07-10 12:36:25,865 [INFO] Fetched 1 pending feedback items.
+2025-07-10 12:45:56,888 [INFO] Fetched 1 pending feedback items.
+2025-07-10 12:55:40,277 [INFO] Fetched 1 pending feedback items.
+2025-07-10 12:58:47,140 [INFO] Fetched 1 pending feedback items.
+2025-07-10 12:58:49,240 [INFO] --- Received request for /feedback_by_status with status: 'rejected' ---
+2025-07-10 12:58:49,241 [ERROR] Error in /feedback_by_status: 400: Invalid status. Must be 'approve' or 'reject'.
+Traceback (most recent call last):
+  File "C:\Users\Vision IAS\Himanshu\my-upsc-project\backend-python-app\backend_server.py", line 192, in get_feedback_by_status
+    raise HTTPException(status_code=400, detail="Invalid status. Must be 'approve' or 'reject'.")
+fastapi.exceptions.HTTPException: 400: Invalid status. Must be 'approve' or 'reject'.
+2025-07-10 12:58:51,091 [INFO] --- Received request for /feedback_by_status with status: 'rejected' ---
+2025-07-10 12:58:51,092 [ERROR] Error in /feedback_by_status: 400: Invalid status. Must be 'approve' or 'reject'.
+Traceback (most recent call last):
+  File "C:\Users\Vision IAS\Himanshu\my-upsc-project\backend-python-app\backend_server.py", line 192, in get_feedback_by_status
+    raise HTTPException(status_code=400, detail="Invalid status. Must be 'approve' or 'reject'.")
+fastapi.exceptions.HTTPException: 400: Invalid status. Must be 'approve' or 'reject'.
+2025-07-10 12:58:52,901 [INFO] Fetched 1 pending feedback items.
+2025-07-10 12:58:56,154 [INFO] --- Received request for /feedback_by_status with status: 'approved' ---
+2025-07-10 12:58:56,154 [ERROR] Error in /feedback_by_status: 400: Invalid status. Must be 'approve' or 'reject'.
+Traceback (most recent call last):
+  File "C:\Users\Vision IAS\Himanshu\my-upsc-project\backend-python-app\backend_server.py", line 192, in get_feedback_by_status
+    raise HTTPException(status_code=400, detail="Invalid status. Must be 'approve' or 'reject'.")
+fastapi.exceptions.HTTPException: 400: Invalid status. Must be 'approve' or 'reject'.
+2025-07-10 12:58:57,446 [INFO] --- Received request for /feedback_by_status with status: 'rejected' ---
+2025-07-10 12:58:57,446 [ERROR] Error in /feedback_by_status: 400: Invalid status. Must be 'approve' or 'reject'.
+Traceback (most recent call last):
+  File "C:\Users\Vision IAS\Himanshu\my-upsc-project\backend-python-app\backend_server.py", line 192, in get_feedback_by_status
+    raise HTTPException(status_code=400, detail="Invalid status. Must be 'approve' or 'reject'.")
+fastapi.exceptions.HTTPException: 400: Invalid status. Must be 'approve' or 'reject'.
+2025-07-10 13:01:04,308 [INFO] --- Received request for /feedback_by_status with status: 'rejected' ---
+2025-07-10 13:01:04,309 [ERROR] Error in /feedback_by_status: 400: Invalid status. Must be 'approve' or 'reject'.
+Traceback (most recent call last):
+  File "C:\Users\Vision IAS\Himanshu\my-upsc-project\backend-python-app\backend_server.py", line 192, in get_feedback_by_status
+    raise HTTPException(status_code=400, detail="Invalid status. Must be 'approve' or 'reject'.")
+fastapi.exceptions.HTTPException: 400: Invalid status. Must be 'approve' or 'reject'.
+2025-07-10 13:01:05,451 [INFO] Fetched 1 pending feedback items.
+2025-07-10 13:01:06,582 [INFO] --- Received request for /feedback_by_status with status: 'rejected' ---
+2025-07-10 13:01:06,582 [ERROR] Error in /feedback_by_status: 400: Invalid status. Must be 'approve' or 'reject'.
+Traceback (most recent call last):
+  File "C:\Users\Vision IAS\Himanshu\my-upsc-project\backend-python-app\backend_server.py", line 192, in get_feedback_by_status
+    raise HTTPException(status_code=400, detail="Invalid status. Must be 'approve' or 'reject'.")
+fastapi.exceptions.HTTPException: 400: Invalid status. Must be 'approve' or 'reject'.
+2025-07-10 13:01:14,340 [INFO] Fetched 1 pending feedback items.
+2025-07-10 13:01:16,296 [INFO] --- Received request for /feedback_by_status with status: 'rejected' ---
+2025-07-10 13:01:16,296 [ERROR] Error in /feedback_by_status: 400: Invalid status. Must be 'approve' or 'reject'.
+Traceback (most recent call last):
+  File "C:\Users\Vision IAS\Himanshu\my-upsc-project\backend-python-app\backend_server.py", line 192, in get_feedback_by_status
+    raise HTTPException(status_code=400, detail="Invalid status. Must be 'approve' or 'reject'.")
+fastapi.exceptions.HTTPException: 400: Invalid status. Must be 'approve' or 'reject'.
+2025-07-10 13:01:17,964 [INFO] Fetched 1 pending feedback items.
+2025-07-10 13:01:22,605 [INFO] --- Received request for /feedback_by_status with status: 'rejected' ---
+2025-07-10 13:01:22,606 [ERROR] Error in /feedback_by_status: 400: Invalid status. Must be 'approve' or 'reject'.
+Traceback (most recent call last):
+  File "C:\Users\Vision IAS\Himanshu\my-upsc-project\backend-python-app\backend_server.py", line 192, in get_feedback_by_status
+    raise HTTPException(status_code=400, detail="Invalid status. Must be 'approve' or 'reject'.")
+fastapi.exceptions.HTTPException: 400: Invalid status. Must be 'approve' or 'reject'.
+2025-07-10 13:01:23,017 [INFO] --- Received request for /feedback_by_status with status: 'rejected' ---
+2025-07-10 13:01:23,018 [ERROR] Error in /feedback_by_status: 400: Invalid status. Must be 'approve' or 'reject'.
+Traceback (most recent call last):
+  File "C:\Users\Vision IAS\Himanshu\my-upsc-project\backend-python-app\backend_server.py", line 192, in get_feedback_by_status
+    raise HTTPException(status_code=400, detail="Invalid status. Must be 'approve' or 'reject'.")
+fastapi.exceptions.HTTPException: 400: Invalid status. Must be 'approve' or 'reject'.
+2025-07-10 13:27:57,261 [INFO] Fetched 1 pending feedback items.
+2025-07-10 13:27:58,777 [INFO] --- Received request for /feedback_by_status with status: 'rejected' ---
+2025-07-10 13:27:58,777 [ERROR] Error in /feedback_by_status: 400: Invalid status. Must be 'approve' or 'reject'.
+Traceback (most recent call last):
+  File "C:\Users\Vision IAS\Himanshu\my-upsc-project\backend-python-app\backend_server.py", line 192, in get_feedback_by_status
+    raise HTTPException(status_code=400, detail="Invalid status. Must be 'approve' or 'reject'.")
+fastapi.exceptions.HTTPException: 400: Invalid status. Must be 'approve' or 'reject'.
+2025-07-10 13:28:51,217 [INFO] --- Received request for /feedback_by_status with status: 'rejected' ---
+2025-07-10 13:28:51,217 [ERROR] Error in /feedback_by_status: 400: Invalid status. Must be 'approve' or 'reject'.
+Traceback (most recent call last):
+  File "C:\Users\Vision IAS\Himanshu\my-upsc-project\backend-python-app\backend_server.py", line 192, in get_feedback_by_status
+    raise HTTPException(status_code=400, detail="Invalid status. Must be 'approve' or 'reject'.")
+fastapi.exceptions.HTTPException: 400: Invalid status. Must be 'approve' or 'reject'.
+2025-07-10 13:28:52,342 [INFO] Fetched 1 pending feedback items.
+2025-07-10 13:36:48,899 [INFO] Fetched 1 pending feedback items.
+2025-07-10 13:36:50,464 [INFO] --- Received request for /feedback_by_status. Raw status value: 'rejected' ---
+2025-07-10 13:36:50,464 [INFO] --- Cleaned status value for comparison: 'rejected' ---
+2025-07-10 13:36:50,465 [ERROR] VALIDATION FAILED: The cleaned status 'rejected' is not one of 'approve' or 'reject'.
+2025-07-10 13:36:50,465 [ERROR] Error in /feedback_by_status: 400: Invalid status. Must be 'approve' or 'reject'.
+Traceback (most recent call last):
+  File "C:\Users\Vision IAS\Himanshu\my-upsc-project\backend-python-app\backend_server.py", line 193, in get_feedback_by_status
+    raise HTTPException(status_code=400, detail="Invalid status. Must be 'approve' or 'reject'.")
+fastapi.exceptions.HTTPException: 400: Invalid status. Must be 'approve' or 'reject'.
+2025-07-10 13:42:09,925 [INFO] --- Received request for /feedback_by_status. Raw status value: 'rejected' ---
+2025-07-10 13:42:09,926 [INFO] --- Cleaned status value for comparison: 'rejected' ---
+2025-07-10 13:42:09,927 [INFO] --- Filtered list contains 0 items. ---
+2025-07-10 13:42:16,990 [INFO] Fetched 1 pending feedback items.
+2025-07-10 13:42:18,641 [INFO] --- Received request for /feedback_by_status. Raw status value: 'rejected' ---
+2025-07-10 13:42:18,641 [INFO] --- Cleaned status value for comparison: 'rejected' ---
+2025-07-10 13:42:18,643 [INFO] --- Filtered list contains 0 items. ---
+2025-07-10 13:52:06,204 [INFO] Fetched 1 pending feedback items.
+2025-07-10 13:52:07,308 [INFO] --- Received request for /feedback_by_status. Raw status value: 'rejected' ---
+2025-07-10 13:52:07,309 [INFO] --- Cleaned status value for comparison: 'rejected' ---
+2025-07-10 13:52:07,310 [INFO] --- Filtered list contains 0 items. ---
+2025-07-10 13:52:08,623 [INFO] Fetched 1 pending feedback items.
+2025-07-10 13:52:09,587 [INFO] --- Received request for /feedback_by_status. Raw status value: 'rejected' ---
+2025-07-10 13:52:09,588 [INFO] --- Cleaned status value for comparison: 'rejected' ---
+2025-07-10 13:52:09,589 [INFO] --- Filtered list contains 0 items. ---
+2025-07-10 13:53:55,054 [INFO] --- Received request for /feedback_by_status. Raw status value: 'rejected' ---
+2025-07-10 13:53:55,055 [INFO] --- Cleaned status value for comparison: 'rejected' ---
+2025-07-10 13:53:55,057 [INFO] --- Filtered list contains 0 items. ---
+2025-07-10 13:53:55,839 [INFO] --- Received request for /feedback_by_status. Raw status value: 'approved' ---
+2025-07-10 13:53:55,839 [INFO] --- Cleaned status value for comparison: 'approved' ---
+2025-07-10 13:53:55,840 [INFO] --- Filtered list contains 0 items. ---
+2025-07-10 13:53:56,898 [INFO] --- Received request for /feedback_by_status. Raw status value: 'rejected' ---
+2025-07-10 13:53:56,898 [INFO] --- Cleaned status value for comparison: 'rejected' ---
+2025-07-10 13:53:56,899 [INFO] --- Filtered list contains 0 items. ---
+2025-07-10 13:53:57,736 [INFO] Fetched 1 pending feedback items.
+2025-07-10 13:55:35,460 [INFO] Fetched 1 pending feedback items.
+2025-07-10 13:55:36,671 [INFO] Feedback has been updated
+2025-07-10 13:55:36,691 [INFO] Fetched 0 pending feedback items.
+2025-07-10 13:59:07,392 [INFO] Fetched 0 pending feedback items.
+2025-07-10 13:59:08,938 [INFO] --- Received request for /feedback_by_status. Raw status value: 'reject' ---
+2025-07-10 13:59:08,939 [INFO] --- Cleaned status value for comparison: 'reject' ---
+2025-07-10 13:59:08,940 [INFO] --- Filtered list contains 8 items. ---
+2025-07-10 13:59:10,311 [INFO] Fetched 0 pending feedback items.
+2025-07-10 13:59:11,168 [INFO] --- Received request for /feedback_by_status. Raw status value: 'reject' ---
+2025-07-10 13:59:11,168 [INFO] --- Cleaned status value for comparison: 'reject' ---
+2025-07-10 13:59:11,169 [INFO] --- Filtered list contains 8 items. ---
+2025-07-10 13:59:12,532 [INFO] --- Received request for /feedback_by_status. Raw status value: 'approve' ---
+2025-07-10 13:59:12,533 [INFO] --- Cleaned status value for comparison: 'approve' ---
+2025-07-10 13:59:12,534 [INFO] --- Filtered list contains 0 items. ---
+2025-07-10 13:59:13,491 [INFO] --- Received request for /feedback_by_status. Raw status value: 'reject' ---
+2025-07-10 13:59:13,491 [INFO] --- Cleaned status value for comparison: 'reject' ---
+2025-07-10 13:59:13,492 [INFO] --- Filtered list contains 8 items. ---
+2025-07-10 13:59:14,959 [INFO] --- Received request for /feedback_by_status. Raw status value: 'approve' ---
+2025-07-10 13:59:14,959 [INFO] --- Cleaned status value for comparison: 'approve' ---
+2025-07-10 13:59:14,960 [INFO] --- Filtered list contains 0 items. ---
+2025-07-10 13:59:15,515 [INFO] --- Received request for /feedback_by_status. Raw status value: 'reject' ---
+2025-07-10 13:59:15,515 [INFO] --- Cleaned status value for comparison: 'reject' ---
+2025-07-10 13:59:15,516 [INFO] --- Filtered list contains 8 items. ---
+2025-07-10 13:59:19,104 [INFO] --- Received request for /feedback_by_status. Raw status value: 'approve' ---
+2025-07-10 13:59:19,105 [INFO] --- Cleaned status value for comparison: 'approve' ---
+2025-07-10 13:59:19,106 [INFO] --- Filtered list contains 0 items. ---
+2025-07-10 13:59:20,187 [INFO] --- Received request for /feedback_by_status. Raw status value: 'reject' ---
+2025-07-10 13:59:20,188 [INFO] --- Cleaned status value for comparison: 'reject' ---
+2025-07-10 13:59:20,189 [INFO] --- Filtered list contains 8 items. ---
+2025-07-10 13:59:20,992 [INFO] Fetched 0 pending feedback items.
