@@ -255,3 +255,16 @@ fastapi.exceptions.HTTPException: 400: Invalid status. Must be 'approve' or 'rej
 2025-07-10 13:59:20,188 [INFO] --- Cleaned status value for comparison: 'reject' ---
 2025-07-10 13:59:20,189 [INFO] --- Filtered list contains 8 items. ---
 2025-07-10 13:59:20,992 [INFO] Fetched 0 pending feedback items.
+2025-07-10 14:00:47,067 [INFO] --- Received request for /feedback_by_status. Raw status value: 'reject' ---
+2025-07-10 14:00:47,068 [INFO] --- Cleaned status value for comparison: 'reject' ---
+2025-07-10 14:00:47,070 [INFO] --- Filtered list contains 8 items. ---
+2025-07-10 14:00:50,894 [INFO] --- Received request for /feedback_by_status. Raw status value: 'approve' ---
+2025-07-10 14:00:50,895 [INFO] --- Cleaned status value for comparison: 'approve' ---
+2025-07-10 14:00:50,895 [INFO] --- Filtered list contains 0 items. ---
+2025-07-10 14:00:51,949 [INFO] --- Received request for /feedback_by_status. Raw status value: 'reject' ---
+2025-07-10 14:00:51,950 [INFO] --- Cleaned status value for comparison: 'reject' ---
+2025-07-10 14:00:51,951 [INFO] --- Filtered list contains 8 items. ---
+2025-07-10 14:00:52,961 [INFO] Fetched 0 pending feedback items.
+2025-07-10 14:00:53,891 [INFO] --- Received request for /feedback_by_status. Raw status value: 'reject' ---
+2025-07-10 14:00:53,892 [INFO] --- Cleaned status value for comparison: 'reject' ---
+2025-07-10 14:00:53,894 [INFO] --- Filtered list contains 8 items. ---
