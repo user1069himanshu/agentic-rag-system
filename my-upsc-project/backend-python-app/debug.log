@@ -306,3 +306,15 @@ fastapi.exceptions.HTTPException: 400: Invalid status. Must be 'approve' or 'rej
 2025-07-11 13:21:16,316 [INFO] --- Cleaned status value for comparison: 'reject' ---
 2025-07-11 13:21:16,316 [INFO] --- Filtered list contains 8 items. ---
 2025-07-11 13:24:29,453 [INFO] Feedback has been updated
+2025-07-11 16:21:46,043 [INFO] Fetched 0 pending feedback items.
+2025-07-11 16:21:47,508 [INFO] --- Received request for /feedback_by_status. Raw status value: 'reject' ---
+2025-07-11 16:21:47,508 [INFO] --- Cleaned status value for comparison: 'reject' ---
+2025-07-11 16:21:47,510 [INFO] --- Filtered list contains 9 items. ---
+2025-07-11 16:22:05,351 [INFO] Generating guidance for section 'introduction'
+2025-07-11 16:22:17,999 [INFO] HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-07-11 16:23:30,886 [INFO] Generating guidance for section 'introduction'
+2025-07-11 16:23:39,614 [INFO] HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-07-11 16:25:46,828 [INFO] Generating guidance for section 'introduction'
+2025-07-11 16:25:58,373 [INFO] HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-07-11 16:28:14,291 [INFO] Generating guidance for section 'introduction'
+2025-07-11 16:28:26,033 [INFO] HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"

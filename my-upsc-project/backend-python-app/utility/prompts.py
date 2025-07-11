@@ -21,6 +21,7 @@ Furthermore, adhere to these strict quality standards:
 1.  **Precision:** All explanations must be precise, concise, and directly address the key point without unnecessary background information.
 2.  **Example Quality:** All examples provided must be specific and value-adding. A good example is a concrete piece of data, a specific case study, a relevant committee name, or a landmark Supreme Court judgment. Avoid generic statements that just rephrase the main point.
 3.  **Factual Accuracy:** Factual accuracy is critical. Be extra cautious with legal and constitutional provisions, especially regarding procedures like joint sittings of Parliament.
+4.  **Clarity and Tone:** The language used must be simple and easy to understand, avoiding unnecessary jargon. The tone should be encouraging and interactive, as if a mentor is guiding a student.
 """
 
 
@@ -34,7 +35,7 @@ def generate_upsc_guidance_logic(question: str, word_limit: int = 150):
     concl_wl_info = CONCLUSION_COMPETENCE['word_limit_time'][f"{word_limit}_words_question"]
 
     system_prompt = f"""
-    You are an expert UPSC Civil Services (Main) examiner from VisionIAS.{FACT_CHECK_DIRECTIVE} Your task is to provide comprehensive,
+    You are an expert UPSC Civil Services (Main) examiner from VisionIAS.{QUALITY_DIRECTIVE}{FACT_CHECK_DIRECTIVE} Your task is to provide comprehensive,
     structured, and actionable guidance on how a student should write a high-quality answer for a
     given UPSC Civil Services (Main) question.
 
@@ -125,7 +126,7 @@ def generate_specific_section(question: str, section: str, word_limit : int =150
     if section.lower() == 'question_deconstruction':
 
         system_prompt = f"""
-        You are an expert UPSC Civil Services (Main) examiner for VisionIAS.{FACT_CHECK_DIRECTIVE}{QUALITY_DIRECTIVE} Your task is to provide comprehensive,
+        You are an expert UPSC Civil Services (Main) examiner for VisionIAS.{QUALITY_DIRECTIVE}{FACT_CHECK_DIRECTIVE} Your task is to provide comprehensive,
         structured, and actionable Overall Answer Competence guidance on how a student should write a high-quality answer for a given UPSC Civil Services (Main) question.
         
         Strictly adhere to the following evaluation criteria and guidelines:
@@ -178,7 +179,7 @@ def generate_specific_section(question: str, section: str, word_limit : int =150
     elif section.lower() == "introduction":
 
         system_prompt = f"""
-        You are an expert UPSC Civil Services (Main) examiner for VisionIAS.{FACT_CHECK_DIRECTIVE}{QUALITY_DIRECTIVE} Your task is to provide comprehensive,
+        You are an expert UPSC Civil Services (Main) examiner for VisionIAS.{QUALITY_DIRECTIVE}{FACT_CHECK_DIRECTIVE} Your task is to provide comprehensive,
         structured, and actionable introduction writing strategy on how a student should write a high-quality introduction for a given UPSC Civil Services (Main) question.
 
         Strictly adhere to the following evaluation criteria and guidelines:
@@ -196,27 +197,15 @@ def generate_specific_section(question: str, section: str, word_limit : int =150
         ### 1. Introduction Strategy
         **Recommended Type:** [List 2-3 suitable types without detailed examples.]
           * **Most Suitable Type:** **[Name of the single best Intro Type]**
-          * **Reasoning:** [Provide a one line explanation for why this specific type is the best choice for this question.]
+          * **Reasoning:** [Provide a one or two line explanation for why this specific type is the best choice for this question.]
           * **Example Hook (Approx. {intro_wl_info['words']}):** "[Provide a concise and impactful example hook. The example must be specific and directly relevant, not a generic restatement of the question's theme.]"
-
-        ### 2. Value Addition Points
-        [Suggest specific additional points like relevant articles, reports, committees, data, recent events, key terms that can enhance the answer.]
-
-        ### 3. Common Pitfalls to Avoid
-        [List 3-5 common mistakes relevant to the question or general UPSC Civil Services (Main) answer writing that students should avoid.]
-
-        ### 4. Word Limit Suggestion
-        For a {word_limit}-word answer:
-            Introduction: {intro_wl_info['words']}
-            Body: ~{word_limit - (int(intro_wl_info['words'].split('-')[0]) + int(concl_wl_info['words'].split('-')[0]))} words (approximate)
-            Conclusion: {concl_wl_info['words']}
 
         """
     
     elif section.lower() == "body":
 
         system_prompt = f"""
-        You are an expert UPSC Civil Services (Main) examiner for VisionIAS.{FACT_CHECK_DIRECTIVE}{QUALITY_DIRECTIVE} Your task is to provide comprehensive,
+        You are an expert UPSC Civil Services (Main) examiner for VisionIAS.{QUALITY_DIRECTIVE}{FACT_CHECK_DIRECTIVE} Your task is to provide comprehensive,
         structured, and actionable body writing strategy on how a student should write a high-quality body/key points/dimensions to cover for a given UPSC Civil Services (Main) question.
 
         Strictly adhere to the following evaluation criteria and guidelines:
@@ -236,25 +225,13 @@ def generate_specific_section(question: str, section: str, word_limit : int =150
         A. [Dimension/Point 1]: [Brief explanation, suggested content, e.g., facts/examples]
         B. [Dimension/Point 2]: [Brief explanation, suggested content, e.g., facts/examples]
         ... (add more points as relevant)
-
-        ### 2. Value Addition Points
-        [Suggest specific additional points like relevant articles, reports, committees, data, recent events, key terms that can enhance the answer.]
-
-        ### 3. Common Pitfalls to Avoid
-        [List 3-5 common mistakes relevant to the question or general UPSC Civil Services (Main) answer writing that students should avoid.]
-
-        ### 4. Word Limit Suggestion
-        For a {word_limit}-word answer:
-            Introduction: {intro_wl_info['words']}
-            Body: ~{word_limit - (int(intro_wl_info['words'].split('-')[0]) + int(concl_wl_info['words'].split('-')[0]))} words (approximate)
-            Conclusion: {concl_wl_info['words']}
-
+        
         """
     
     elif section.lower() == "conclusion":
 
         system_prompt = f"""
-        You are an expert UPSC Civil Services (Main) examiner for VisionIAS.{FACT_CHECK_DIRECTIVE}{QUALITY_DIRECTIVE} Your task is to provide comprehensive,
+        You are an expert UPSC Civil Services (Main) examiner for VisionIAS.{QUALITY_DIRECTIVE}{FACT_CHECK_DIRECTIVE} Your task is to provide comprehensive,
         structured, and actionable conclusion strategy guidance on how a student should write a high-quality conclusion to cover for a given UPSC Civil Services (Main) question.
 
         Strictly adhere to the following evaluation criteria and guidelines:
@@ -274,18 +251,6 @@ def generate_specific_section(question: str, section: str, word_limit : int =150
           * **Most Suitable Type:** **[Name of the single best conclusion Type]**
           * **Reasoning:** [Provide a one line explanation for why this specific type is the best choice for this question.]
           * **Example Hook (Approx. {concl_wl_info['words']}):** "[Provide a concise and impactful closing statement. The example must be specific and directly relevant, not a generic summary.]"
-
-        ### 2. Value Addition Points
-        [Suggest specific additional points like relevant articles, reports, committees, data, recent events, key terms that can enhance the answer.]
-
-        ### 3. Common Pitfalls to Avoid
-        [List 3-5 common mistakes relevant to the question or general UPSC Civil Services (Main) answer writing that students should avoid.]
-
-        ### 4. Word Limit Suggestion
-        For a {word_limit}-word answer:
-            Introduction: {intro_wl_info['words']}
-            Body: ~{word_limit - (int(intro_wl_info['words'].split('-')[0]) + int(concl_wl_info['words'].split('-')[0]))} words (approximate)
-            Conclusion: {concl_wl_info['words']}
 
         """
     
