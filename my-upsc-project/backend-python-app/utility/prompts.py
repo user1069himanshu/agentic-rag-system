@@ -5,8 +5,25 @@ from utility.UPSC_evaluation_matrix import (
     BODY_COMPETENCE,
 )
 from utility.gemini import call_gemini_api
+from utility.openai_handler import call_openai_api
 import json
 from utility.logger import logger
+
+FACT_CHECK_DIRECTIVE = """
+Your primary role is to provide structural and conceptual guidance. 
+AVOID providing specific data, statistics, or facts unless it is a well-established, stable piece of information (e.g., the year a law was passed). 
+It is always better to suggest the TYPE of data a student should use (e.g., 'cite the latest NCRB report for conviction rates') rather than stating the data itself. If you must provide a fact, it must be accurate. 
+Prioritize information from credible, official sources like government reports, parliamentary committees, and Supreme Court judgments.
+"""
+
+QUALITY_DIRECTIVE = """
+Furthermore, adhere to these strict quality standards:
+1.  **Precision:** All explanations must be precise, concise, and directly address the key point without unnecessary background information.
+2.  **Example Quality:** All examples provided must be specific and value-adding. A good example is a concrete piece of data, a specific case study, a relevant committee name, or a landmark Supreme Court judgment. Avoid generic statements that just rephrase the main point.
+3.  **Factual Accuracy:** Factual accuracy is critical. Be extra cautious with legal and constitutional provisions, especially regarding procedures like joint sittings of Parliament.
+"""
+
+
 
 def generate_upsc_guidance_logic(question: str, word_limit: int = 150):
     """
@@ -17,7 +34,7 @@ def generate_upsc_guidance_logic(question: str, word_limit: int = 150):
     concl_wl_info = CONCLUSION_COMPETENCE['word_limit_time'][f"{word_limit}_words_question"]
 
     system_prompt = f"""
-    You are an expert UPSC Civil Services (Main) examiner from VisionIAS. Your task is to provide comprehensive,
+    You are an expert UPSC Civil Services (Main) examiner from VisionIAS.{FACT_CHECK_DIRECTIVE} Your task is to provide comprehensive,
     structured, and actionable guidance on how a student should write a high-quality answer for a
     given UPSC Civil Services (Main) question.
 
@@ -94,7 +111,7 @@ def generate_upsc_guidance_logic(question: str, word_limit: int = 150):
 
     return call_gemini_api(chat_history)
 
-# --- Section-wise Guidance Generation Logic (Adapted for Flask) ---
+# --- Section-wise Guidance Generation Logic ---
 def generate_specific_section(question: str, section: str, word_limit : int =150):
 
     """
@@ -102,15 +119,14 @@ def generate_specific_section(question: str, section: str, word_limit : int =150
     This logic is directly adapted from the main_guidance_app.py.
     """
 
+    intro_wl_info = INTRODUCTION_COMPETENCE['word_limit_time'][f"{word_limit}_words_question"]
+    concl_wl_info = CONCLUSION_COMPETENCE['word_limit_time'][f"{word_limit}_words_question"]
+
     if section.lower() == 'question_deconstruction':
 
-        intro_wl_info = INTRODUCTION_COMPETENCE['word_limit_time'][f"{word_limit}_words_question"]
-        concl_wl_info = CONCLUSION_COMPETENCE['word_limit_time'][f"{word_limit}_words_question"]
-
         system_prompt = f"""
-        You are an expert UPSC Civil Services (Main) examiner for VisionIAS. Your task is to provide comprehensive,
-        structured, and actionable Overall Answer Competence guidance on how a student should write a high-quality answer for a
-        given UPSC Civil Services (Main) question.
+        You are an expert UPSC Civil Services (Main) examiner for VisionIAS.{FACT_CHECK_DIRECTIVE}{QUALITY_DIRECTIVE} Your task is to provide comprehensive,
+        structured, and actionable Overall Answer Competence guidance on how a student should write a high-quality answer for a given UPSC Civil Services (Main) question.
         
         Strictly adhere to the following evaluation criteria and guidelines:
 
@@ -124,40 +140,46 @@ def generate_specific_section(question: str, section: str, word_limit : int =150
         Your output must strictly follow this structure using '###' for each main section heading.
         ## UPSC Civil Services (Main) Answer Guidance
         ### 1. Question Deconstruction
-        Directive Word(s): **[Identify]**\nKeywords: **[Identify]**\nCore Demand: [Summarize what the question asks]
+        Directive Word(s): **[Identify]**
+        Keywords: **[Identify]**
+        Keyword Explanation: [Provide a brief, one-sentence explanation for each identified directive words linking with the identified keywords, tailored to the context of the question.]
+        Core Demand: [Summarize what the question asks]
 
-        ### 2. Value Addition Points
+        ### 2. Graphical Format Guidance
+        Based on the question's nature, review the following presentation techniques and suggest 1-2 of the MOST relevant ones. For each suggestion, explain exactly how and where the student can use it in their answer.
+
+        **List of Presentation Techniques:**
+        - **Diagrams:** Simplify complex concepts for easier understanding.
+        - **Maps:** Highlight locational aspects and geographical relevance.
+        - **Tables:** Provide concise comparisons between different elements.
+        - **Charts and Graphs:** Depict trends, growth, or statistical data.
+        - **Schematics and Flowcharts:** Illustrate processes and frameworks clearly.
+        - **Cyclical, Quadrilateral, and Triangular Geometric shapes:** Represent recurring or multi-dimensional concepts.
+        - **Venn Diagrams:** Show relationships and intersections between topics.
+        - **Timelines:** Display chronological sequence or policy evolution.
+        - **Hub-and-Spoke Models:** Demonstrate interconnected elements or systems.
+        - **Illustrative Art Forms:** Represent cultural and architectural aspects visually such as Stupa, Temple architecture etc.
+
+        ### 3. Value Addition Points
         [Suggest specific additional points like relevant articles, reports, committees, data, recent events, key terms that can enhance the answer.]
 
-        ### 3. Common Pitfalls to Avoid
+        ### 4. Common Pitfalls to Avoid
         [List 3-5 common mistakes relevant to the question or general UPSC Civil Services (Main) answer writing that students should avoid.]
 
-        ### 4. Word Limit Suggestion
+        ### 5. Word Limit Suggestion
         For a {word_limit}-word answer:
             Introduction: {intro_wl_info['words']}
             Body: ~{word_limit - (int(intro_wl_info['words'].split('-')[0]) + int(concl_wl_info['words'].split('-')[0]))} words (approximate)
             Conclusion: {concl_wl_info['words']}
 
         """
-        user_message = f"Please provide structured Overall Answer Competence writing guidance for the following UPSC Civil Services (Main) question (word limit: {word_limit} words):\n\nQuestion: {question}:\n\nSection: {section}"
-
-        chat_history = [
-            {"role": "user", "parts": [{"text": system_prompt}]},
-            {"role": "user", "parts": [{"text": user_message}]}
-        ]
-
-        return call_gemini_api(chat_history)
 
 
-    if section.lower() == "introduction":
-        
-        intro_wl_info = INTRODUCTION_COMPETENCE['word_limit_time'][f"{word_limit}_words_question"]
-        concl_wl_info = CONCLUSION_COMPETENCE['word_limit_time'][f"{word_limit}_words_question"]
+    elif section.lower() == "introduction":
 
         system_prompt = f"""
-        You are an expert UPSC Civil Services (Main) examiner for VisionIAS. Your task is to provide comprehensive,
-        structured, and actionable introduction writing strategy on how a student should write a high-quality introduction for a 
-        given UPSC Civil Services (Main) question.
+        You are an expert UPSC Civil Services (Main) examiner for VisionIAS.{FACT_CHECK_DIRECTIVE}{QUALITY_DIRECTIVE} Your task is to provide comprehensive,
+        structured, and actionable introduction writing strategy on how a student should write a high-quality introduction for a given UPSC Civil Services (Main) question.
 
         Strictly adhere to the following evaluation criteria and guidelines:
 
@@ -172,9 +194,10 @@ def generate_specific_section(question: str, section: str, word_limit : int =150
         ## UPSC Civil Services (Main) Answer Guidance
 
         ### 1. Introduction Strategy
-        Recommended Type(s): [Suggest 1-2 types from the matrix with justification]
-        Reasoning: [Explain why this type is suitable for the given question]
-        Example Opening Hook (Approx. {intro_wl_info['words']}): "[Provide a concise example]"
+        **Recommended Type:** [List 2-3 suitable types without detailed examples.]
+          * **Most Suitable Type:** **[Name of the single best Intro Type]**
+          * **Reasoning:** [Provide a one line explanation for why this specific type is the best choice for this question.]
+          * **Example Hook (Approx. {intro_wl_info['words']}):** "[Provide a concise and impactful example hook. The example must be specific and directly relevant, not a generic restatement of the question's theme.]"
 
         ### 2. Value Addition Points
         [Suggest specific additional points like relevant articles, reports, committees, data, recent events, key terms that can enhance the answer.]
@@ -189,25 +212,12 @@ def generate_specific_section(question: str, section: str, word_limit : int =150
             Conclusion: {concl_wl_info['words']}
 
         """
-
-        user_message = f"Please provide structured introduction of the answer writing guidance for the following UPSC Civil Services (Main) question (word limit: {word_limit} words):\n\nQuestion: {question}:\n\nSection: {section}"
-
-        chat_history = [
-            {"role": "user", "parts": [{"text": system_prompt}]},
-            {"role": "user", "parts": [{"text": user_message}]}
-        ]
-
-        return call_gemini_api(chat_history)
     
-    if section.lower() == "body":
-
-        intro_wl_info = INTRODUCTION_COMPETENCE['word_limit_time'][f"{word_limit}_words_question"]
-        concl_wl_info = CONCLUSION_COMPETENCE['word_limit_time'][f"{word_limit}_words_question"]
+    elif section.lower() == "body":
 
         system_prompt = f"""
-        You are an expert UPSC Civil Services (Main) examiner for VisionIAS. Your task is to provide comprehensive,
-        structured, and actionable body writing strategy on how a student should write a high-quality body/key points/dimensions to cover for a 
-        given UPSC Civil Services (Main) question.
+        You are an expert UPSC Civil Services (Main) examiner for VisionIAS.{FACT_CHECK_DIRECTIVE}{QUALITY_DIRECTIVE} Your task is to provide comprehensive,
+        structured, and actionable body writing strategy on how a student should write a high-quality body/key points/dimensions to cover for a given UPSC Civil Services (Main) question.
 
         Strictly adhere to the following evaluation criteria and guidelines:
 
@@ -222,7 +232,7 @@ def generate_specific_section(question: str, section: str, word_limit : int =150
         ## UPSC Civil Services (Main) Answer Guidance
 
         ### 1. Body - Key Dimensions/Points to Cover
-        # [Use bullet points or subheadings to list 3-5 main aspects/arguments relevant to the question. For each, suggest brief content and potential examples/data/facts.]
+        # [Use bullet points or subheadings to list 3-5 main aspects/arguments relevant to the question. For each, suggest brief content and a specific, value-adding example. The example should not be a simple restatement of the point, but should be a concrete piece of data, a specific case study, a relevant committee name, or a landmark Supreme Court judgment that substantiates the argument.]
         A. [Dimension/Point 1]: [Brief explanation, suggested content, e.g., facts/examples]
         B. [Dimension/Point 2]: [Brief explanation, suggested content, e.g., facts/examples]
         ... (add more points as relevant)
@@ -240,25 +250,12 @@ def generate_specific_section(question: str, section: str, word_limit : int =150
             Conclusion: {concl_wl_info['words']}
 
         """
-
-        user_message = f"Please provide structured body of the answer writing guidance for the following UPSC Civil Services (Main) question (word limit: {word_limit} words):\n\nQuestion: {question}:\n\nSection: {section}"
-
-        chat_history = [
-            {"role": "user", "parts": [{"text": system_prompt}]},
-            {"role": "user", "parts": [{"text": user_message}]}
-        ]
-
-        return call_gemini_api(chat_history)
     
-    if section.lower() == "conclusion":
-
-        intro_wl_info = INTRODUCTION_COMPETENCE['word_limit_time'][f"{word_limit}_words_question"]
-        concl_wl_info = CONCLUSION_COMPETENCE['word_limit_time'][f"{word_limit}_words_question"]
+    elif section.lower() == "conclusion":
 
         system_prompt = f"""
-        You are an expert UPSC Civil Services (Main) examiner for VisionIAS. Your task is to provide comprehensive,
-        structured, and actionable conclusion strategy guidance on how a student should write a high-quality conclusion to cover for a 
-        given UPSC Civil Services (Main) question.
+        You are an expert UPSC Civil Services (Main) examiner for VisionIAS.{FACT_CHECK_DIRECTIVE}{QUALITY_DIRECTIVE} Your task is to provide comprehensive,
+        structured, and actionable conclusion strategy guidance on how a student should write a high-quality conclusion to cover for a given UPSC Civil Services (Main) question.
 
         Strictly adhere to the following evaluation criteria and guidelines:
 
@@ -273,9 +270,10 @@ def generate_specific_section(question: str, section: str, word_limit : int =150
         ## UPSC Civil Services (Main) Answer Guidance
 
         ### 1. Conclusion Strategy
-        Recommended Type(s): [Suggest 1-2 types from the matrix with justification]
-        Reasoning: [Explain why this type is suitable]
-        Example Closing Statement (Approx. {concl_wl_info['words']}): "[Provide a concise example]"
+        **Recommended Type:** [List 2-3 suitable types without detailed examples.]
+          * **Most Suitable Type:** **[Name of the single best conclusion Type]**
+          * **Reasoning:** [Provide a one line explanation for why this specific type is the best choice for this question.]
+          * **Example Hook (Approx. {concl_wl_info['words']}):** "[Provide a concise and impactful closing statement. The example must be specific and directly relevant, not a generic summary.]"
 
         ### 2. Value Addition Points
         [Suggest specific additional points like relevant articles, reports, committees, data, recent events, key terms that can enhance the answer.]
@@ -290,15 +288,15 @@ def generate_specific_section(question: str, section: str, word_limit : int =150
             Conclusion: {concl_wl_info['words']}
 
         """
+    
+    else:
+        logger.error(f"Invalid section requestion: {section}")
+        raise ValueError(f"Guidance for section {section} is not defined!!")
+    
+    user_message = f"Please provide structured {section} of the answer writing guidance for the following UPSC Civil Services (Main) question (word limit: {word_limit} words):\n\nQuestion: {question}:\n\nSection: {section}"
 
-        user_message = f"Please provide structured conclusion of the answer writing guidance for the following UPSC Civil Services (Main) question (word limit: {word_limit} words):\n\nQuestion: {question}:\n\nSection: {section}"
+    return call_openai_api(system_prompt,user_message)
 
-        chat_history = [
-            {"role": "user", "parts": [{"text": system_prompt}]},
-            {"role": "user", "parts": [{"text": user_message}]}
-        ]
-
-        return call_gemini_api(chat_history)
 
 if __name__ == "__main__":
     logger.info("Prompts.py health Cheackup")

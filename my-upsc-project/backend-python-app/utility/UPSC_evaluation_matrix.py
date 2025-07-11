@@ -89,9 +89,8 @@ INTRODUCTION_COMPETENCE = {
     ]
 }
 
-# --- III. Body Competence ---
+# --- III. Body and Conclusion Competence ---
 # Note: The provided PDF primarily focuses on Intro/Conclusion.
-# These points are general good practices for a UPSC answer body.
 # Further detail can be added based on broader UPSC guidelines.
 BODY_COMPETENCE = {
     "content_depth_relevance": "Addresses the core demands of the question with relevant facts, concepts, and arguments.",
