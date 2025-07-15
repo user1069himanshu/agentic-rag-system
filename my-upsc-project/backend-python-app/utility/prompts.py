@@ -9,6 +9,14 @@ from utility.openai_handler import call_openai_api
 import json
 from utility.logger import logger
 
+
+UPSC_GS_SYLLABUS = {
+    "GS Paper 1": ["Indian Heritage and Culture", "History of the World and Society", "Geography of the World and Society"],
+    "GS Paper 2": ["Governance", "Constitution", "Polity", "Social Justice", "International Relations"],
+    "GS Paper 3": ["Technology", "Economic Development", "Bio-diversity", "Environment", "Security", "Disaster Management"],
+    "GS Paper 4": ["Ethics, Integrity and Aptitude"]
+}
+
 FACT_CHECK_DIRECTIVE = """
 Your primary role is to provide structural and conceptual guidance. 
 AVOID providing specific data, statistics, or facts unless it is a well-established, stable piece of information (e.g., the year a law was passed). 
@@ -26,16 +34,30 @@ Furthermore, adhere to these strict quality standards:
 
 
 
-def generate_upsc_guidance_logic(question: str, word_limit: int = 150):
+def generate_upsc_guidance_logic(question: str,category:str, word_limit: int = 150, optional_subject: str = None):
     """
     Generates the system prompt using the evaluation matrix and calls the LLM.
     This logic is directly adapted from your main_guidance_app.py.
     """
+
+    CONTEXT_INSTRUCTION = ""
+    if category == 'gs':
+        CONTEXT_INSTRUCTION = f"""
+        The user has specified this is a General Studies question. Your primary task is to analyze the question and map it to the specific subjects from the official UPSC syllabus provided below. You must identify one primary subject and can identify one or two secondary subjects if the question is inter-disciplinary.
+
+        **Official GS Syllabus Topics:**
+        {json.dumps(UPSC_GS_SYLLABUS, indent=2)}
+        """
+    elif category == 'optional' and optional_subject:
+        CONTEXT_INSTRUCTION = f"The user has specified this is for their optional subject: {optional_subject}. Your primary task is to determine if the question relates more to Paper 1 (Foundations & Theories) or Paper 2 (Applied Concepts & Indian Context) of this optional."
+
+
+
     intro_wl_info = INTRODUCTION_COMPETENCE['word_limit_time'][f"{word_limit}_words_question"]
     concl_wl_info = CONCLUSION_COMPETENCE['word_limit_time'][f"{word_limit}_words_question"]
 
     system_prompt = f"""
-    You are an expert UPSC Civil Services (Main) examiner from VisionIAS.{QUALITY_DIRECTIVE}{FACT_CHECK_DIRECTIVE} Your task is to provide comprehensive,
+    You are an expert UPSC Civil Services (Main) examiner from VisionIAS.{CONTEXT_INSTRUCTION}{QUALITY_DIRECTIVE}{FACT_CHECK_DIRECTIVE} Your task is to provide comprehensive,
     structured, and actionable guidance on how a student should write a high-quality answer for a
     given UPSC Civil Services (Main) question.
 
@@ -113,7 +135,7 @@ def generate_upsc_guidance_logic(question: str, word_limit: int = 150):
     return call_gemini_api(chat_history)
 
 # --- Section-wise Guidance Generation Logic ---
-def generate_specific_section(question: str, section: str, word_limit : int =150):
+def generate_specific_section(question: str, section: str, category: str,word_limit : int =150, optional_subject: str = None):
 
     """
     Generates the system prompt using the evaluation matrix and calls the LLM.
@@ -123,10 +145,25 @@ def generate_specific_section(question: str, section: str, word_limit : int =150
     intro_wl_info = INTRODUCTION_COMPETENCE['word_limit_time'][f"{word_limit}_words_question"]
     concl_wl_info = CONCLUSION_COMPETENCE['word_limit_time'][f"{word_limit}_words_question"]
 
+    CONTEXT_INSTRUCTION = ""
+    if category == 'gs':
+        CONTEXT_INSTRUCTION = f"""
+        The user has specified this is a General Studies question. 
+        Your primary task is to analyze the question and map it to the specific subjects from the official UPSC syllabus provided below. 
+        You must identify one primary subject and can identify one or two secondary subjects if the question is inter-disciplinary.
+
+        **Official GS Syllabus Topics:**
+        {json.dumps(UPSC_GS_SYLLABUS, indent=2)}
+        """
+    elif category == 'optional' and optional_subject:
+        CONTEXT_INSTRUCTION = f"The user has specified this is for their optional subject: {optional_subject}. Your primary task is to determine if the question relates more to Paper 1 (Foundations & Theories) or Paper 2 (Applied Concepts & Indian Context) of this optional."
+
+
+        
     if section.lower() == 'question_deconstruction':
 
         system_prompt = f"""
-        You are an expert UPSC Civil Services (Main) examiner for VisionIAS.{QUALITY_DIRECTIVE}{FACT_CHECK_DIRECTIVE} Your task is to provide comprehensive,
+        You are an expert UPSC Civil Services (Main) examiner for VisionIAS.{CONTEXT_INSTRUCTION}{QUALITY_DIRECTIVE}{FACT_CHECK_DIRECTIVE} Your task is to provide comprehensive,
         structured, and actionable Overall Answer Competence guidance on how a student should write a high-quality answer for a given UPSC Civil Services (Main) question.
         
         Strictly adhere to the following evaluation criteria and guidelines:
@@ -179,7 +216,7 @@ def generate_specific_section(question: str, section: str, word_limit : int =150
     elif section.lower() == "introduction":
 
         system_prompt = f"""
-        You are an expert UPSC Civil Services (Main) examiner for VisionIAS.{QUALITY_DIRECTIVE}{FACT_CHECK_DIRECTIVE} Your task is to provide comprehensive,
+        You are an expert UPSC Civil Services (Main) examiner for VisionIAS.{CONTEXT_INSTRUCTION}{QUALITY_DIRECTIVE}{FACT_CHECK_DIRECTIVE} Your task is to provide comprehensive,
         structured, and actionable introduction writing strategy on how a student should write a high-quality introduction for a given UPSC Civil Services (Main) question.
 
         Strictly adhere to the following evaluation criteria and guidelines:
@@ -205,7 +242,7 @@ def generate_specific_section(question: str, section: str, word_limit : int =150
     elif section.lower() == "body":
 
         system_prompt = f"""
-        You are an expert UPSC Civil Services (Main) examiner for VisionIAS.{QUALITY_DIRECTIVE}{FACT_CHECK_DIRECTIVE} Your task is to provide comprehensive,
+        You are an expert UPSC Civil Services (Main) examiner for VisionIAS.{CONTEXT_INSTRUCTION}{QUALITY_DIRECTIVE}{FACT_CHECK_DIRECTIVE} Your task is to provide comprehensive,
         structured, and actionable body writing strategy on how a student should write a high-quality body/key points/dimensions to cover for a given UPSC Civil Services (Main) question.
 
         Strictly adhere to the following evaluation criteria and guidelines:
@@ -231,7 +268,7 @@ def generate_specific_section(question: str, section: str, word_limit : int =150
     elif section.lower() == "conclusion":
 
         system_prompt = f"""
-        You are an expert UPSC Civil Services (Main) examiner for VisionIAS.{QUALITY_DIRECTIVE}{FACT_CHECK_DIRECTIVE} Your task is to provide comprehensive,
+        You are an expert UPSC Civil Services (Main) examiner for VisionIAS.{CONTEXT_INSTRUCTION}{QUALITY_DIRECTIVE}{FACT_CHECK_DIRECTIVE} Your task is to provide comprehensive,
         structured, and actionable conclusion strategy guidance on how a student should write a high-quality conclusion to cover for a given UPSC Civil Services (Main) question.
 
         Strictly adhere to the following evaluation criteria and guidelines:
@@ -263,5 +300,37 @@ def generate_specific_section(question: str, section: str, word_limit : int =150
     return call_openai_api(system_prompt,user_message)
 
 
+
+def get_syllabus_subjects(question: str):
+    """
+    Instructs the AI to categorize a question and return a structured JSON list of subjects.
+    """
+    system_prompt = f"""
+    You are an expert UPSC syllabus analyzer. Your task is to analyze the given UPSC Mains question and map it to the specific subjects from the official syllabus provided below. You must identify one primary subject and can identify one or two secondary subjects if the question is inter-disciplinary.
+
+    **Official GS Syllabus Topics:**
+    {json.dumps(UPSC_GS_SYLLABUS, indent=2)}
+    
+    Your output MUST be a valid JSON object containing a single key "subjects" which holds a list of the identified subject strings. Provide NO other text, explanation, or pleasantries.
+
+    Example Input: "Discuss the impact of climate change on coastal ecosystems in India."
+    Example Output: {{"subjects": ["GS Paper 1: Geography", "GS Paper 3: Environment & Ecology", "GS Paper 3: Disaster Management"]}}
+    """
+    
+    user_prompt = f"Here is the question to analyze: \"{question}\""
+
+    response_string = call_openai_api(system_prompt, user_prompt)
+    
+    try:
+        # Clean up potential markdown code block fences
+        cleaned_response = response_string.strip().replace('```json', '').replace('```', '')
+        return json.loads(cleaned_response)
+    except json.JSONDecodeError:
+        logger.error(f"Failed to decode JSON from categorization AI response: {response_string}")
+        return {"error": "Failed to get a valid JSON response from the AI."}
+
+
+
 if __name__ == "__main__":
     logger.info("Prompts.py health Cheackup")
+

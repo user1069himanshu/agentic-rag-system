@@ -3,12 +3,13 @@
 from fastapi import FastAPI, HTTPException, Depends, Request
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
-from utility.prompts import generate_specific_section
+from utility.prompts import generate_specific_section,get_syllabus_subjects
 from utility.gemini import call_gemini_api
 import json
 import uuid
 from pathlib import Path
 from utility.logger import logger
+from typing import Optional, List
 
 app = FastAPI()
 
@@ -27,10 +28,13 @@ class GuidanceInput(BaseModel):
     question: str
     wordLimit: int = 150
 
+
 class SectionInput(BaseModel):
     question: str
     section: str
     wordLimit: int = 150
+    category: str
+    optional_subject:Optional[str] = None
 
 class TranslationInput(BaseModel):
     text: str
@@ -46,6 +50,8 @@ class FeedbackEntry(BaseModel):
 class Feedbackstatus(BaseModel):
     comment: str
 
+class QuestionInput(BaseModel):
+    question: str
 
 FEEDBACK_FILE = Path("feedback_log.json")
 
@@ -77,6 +83,7 @@ async def generate_section_guidance(payload: SectionInput, request: Request):
 
     try:
         logger.info(f"Generating guidance for section '{payload.section}'")
+        logger.info(f"Question belongs to {get_syllabus_subjects(payload.question)}")
         guidance = generate_specific_section(payload.question, payload.section, payload.wordLimit)
         return {"guidance": guidance}
     except Exception as e:
@@ -223,6 +230,25 @@ async def get_feedback_stats(request: Request):
     except Exception as e:
         logger.error(f"Error in {request.url.path}: {e}", exc_info=True)
         raise HTTPException(status_code=500, detail=str(e))
+    
+
+@app.post("/categorize_question")
+async def categorize_question_endpoint(payload: QuestionInput, request: Request):
+    if not payload.question.strip():
+        raise HTTPException(status_code=400, detail="Question cannot be empty.")
+    
+    try:
+        logger.info(f"Categorizing question: '{payload.question[:50]}...'")
+        syllabus_data = get_syllabus_subjects(payload.question)
+        if "error" in syllabus_data:
+             raise HTTPException(status_code=500, detail=syllabus_data["error"])
+        
+        return syllabus_data
+
+    except Exception as e:
+        logger.error(f"Error in {request.url.path}: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail="An internal server error occurred.")
+
 
 
 

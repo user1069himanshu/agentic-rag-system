@@ -318,3 +318,11 @@ fastapi.exceptions.HTTPException: 400: Invalid status. Must be 'approve' or 'rej
 2025-07-11 16:25:58,373 [INFO] HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
 2025-07-11 16:28:14,291 [INFO] Generating guidance for section 'introduction'
 2025-07-11 16:28:26,033 [INFO] HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-07-11 16:43:32,644 [INFO] Generating guidance for section 'question_deconstruction'
+2025-07-11 16:43:44,025 [INFO] HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-07-14 16:51:30,800 [INFO] Generating guidance for section 'introduction'
+2025-07-14 16:52:02,088 [INFO] HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-07-14 17:47:22,645 [INFO] Generating guidance for section 'introduction'
+2025-07-14 17:47:29,200 [INFO] HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-07-14 17:47:29,205 [INFO] Question belongs to {'subjects': ['GS Paper 2: Social Justice', 'GS Paper 2: Governance']}
+2025-07-14 17:47:40,873 [INFO] HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"

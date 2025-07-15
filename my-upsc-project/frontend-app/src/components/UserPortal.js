@@ -11,9 +11,16 @@ const SECTION_OPTIONS = [
   { key: 'conclusion', label: 'Conclusion Strategy' }
 ];
 
-// This is a simple accordion item component for cleaner code
+const UPSC_OPTIONALS = [
+  "Agriculture", "Animal Husbandry & Veterinary Science", "Anthropology", "Botany",
+  "Chemistry", "Civil Engineering", "Commerce and Accountancy", "Economics",
+  "Electrical Engineering", "Geography", "Geology", "History", "Law",
+  "Management", "Mathematics", "Mechanical Engineering", "Medical Science",
+  "Philosophy", "Physics", "Political Science & International Relations",
+  "Psychology", "Public Administration", "Sociology", "Statistics", "Zoology"
+];
+
 const AccordionItem = ({ title, content, isOpen, toggleOpen }) => {
-  
   const formattedContent = content
     .replace(/\*\*/g, '') 
     .replace(/\s+/g, ' ')
@@ -61,7 +68,6 @@ const AccordionItem = ({ title, content, isOpen, toggleOpen }) => {
   );
 };
 
-
 const UserPortal = () => {
   const [question, setQuestion] = useState('');
   const [wordLimit, setWordLimit] = useState(150);
@@ -76,6 +82,8 @@ const UserPortal = () => {
   const [isTranslating, setIsTranslating] = useState(false);
   const [rating, setRating] = useState('');
   const [comment, setComment] = useState('');
+  const [category, setCategory] = useState('gs');
+  const [optionalSubject, setOptionalSubject] = useState('');
 
   const submitFeedback = async () => {
     const latestSection = guidanceSections[guidanceSections.length - 1];
@@ -106,8 +114,8 @@ const UserPortal = () => {
   };
 
   const generateSectionGuidance = async () => {
-    if (!question.trim() || !selectedSection) {
-      setError('Please enter a UPSC question and select a section.');
+    if (!question.trim() || !selectedSection || (category === 'optional' && !optionalSubject)) {
+      setError('Please fill all required fields: Question, Category, Optional Subject (if applicable), and Section.');
       return;
     }
     setLoading(true);
@@ -119,6 +127,8 @@ const UserPortal = () => {
         question: question,
         wordLimit: wordLimit,
         section: selectedSection,
+        category: category,
+        optional_subject: optionalSubject
       });
       const parsedSubSections = parseGuidanceMarkdown(response.guidance);
       const newSections = parsedSubSections.map((sec, index) => ({
@@ -172,6 +182,7 @@ const UserPortal = () => {
     setGuidanceSections([]); setOriginalGuidance([]);
     setOpenSectionId(null); setError(''); setCopyFeedback('');
     setTargetLanguage('en'); setRating(''); setComment('');
+    setCategory('gs'); setOptionalSubject('');
   };
 
   const handleCopyGuidance = () => {
@@ -199,22 +210,31 @@ const UserPortal = () => {
 
   return (
     <>
-      {/* Question Input Section */}
       <div className="space-y-6">
         <div>
           <label htmlFor="question" className="block text-lg font-semibold text-gray-700 mb-2">
             Enter UPSC Mains Question:
           </label>
-          <textarea
-            id="question"
-            className="w-full p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200 resize-y min-h-[120px] text-gray-800"
-            rows="5"
-            placeholder="Type your UPSC Mains question here..."
-            value={question}
-            onChange={(e) => setQuestion(e.target.value)}
-          ></textarea>
+          <textarea id="question" className="w-full p-4 border border-gray-300 rounded-lg"
+            rows="5" placeholder="Type your UPSC Mains question here..." value={question}
+            onChange={(e) => setQuestion(e.target.value)} />
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            <label className="block text-lg font-semibold text-gray-700 mb-2">Select Category:</label>
+            <div className="flex gap-6 bg-gray-100 p-3 rounded-lg">
+              <label className="inline-flex items-center cursor-pointer">
+                <input type="radio" className="form-radio text-indigo-600 h-5 w-5" name="category" value="gs"
+                  checked={category === 'gs'} onChange={() => setCategory('gs')} />
+                <span className="ml-2 text-gray-700 font-medium">General Studies</span>
+              </label>
+              <label className="inline-flex items-center cursor-pointer">
+                <input type="radio" className="form-radio text-indigo-600 h-5 w-5" name="category" value="optional"
+                  checked={category === 'optional'} onChange={() => setCategory('optional')} />
+                <span className="ml-2 text-gray-700 font-medium">Optional</span>
+              </label>
+            </div>
+          </div>
           <div>
             <label className="block text-lg font-semibold text-gray-700 mb-2">Select Word Limit:</label>
             <div className="flex gap-6 bg-gray-100 p-3 rounded-lg">
@@ -227,31 +247,43 @@ const UserPortal = () => {
               ))}
             </div>
           </div>
+        </div>
+        {category === 'optional' && (
           <div>
-            <label htmlFor="section-select" className="block text-lg font-semibold text-gray-700 mb-2">Guidance Section:</label>
-            <select id="section-select" value={selectedSection} onChange={(e) => setSelectedSection(e.target.value)}
+            <label htmlFor="optional-select" className="block text-lg font-semibold text-gray-700 mb-2">Select Optional Subject:</label>
+            <select id="optional-select" value={optionalSubject} onChange={(e) => setOptionalSubject(e.target.value)}
               className="w-full rounded-md border-gray-300 shadow-sm px-4 py-3 text-gray-800 focus:ring-2 focus:ring-indigo-500">
-              <option value="">-- Select Section to Generate --</option>
-              {SECTION_OPTIONS.map(opt => (<option key={opt.key} value={opt.key}>{opt.label}</option>))}
+              <option value="">-- Choose Your Optional --</option>
+              {UPSC_OPTIONALS.map(opt => (<option key={opt} value={opt}>{opt}</option>))}
             </select>
           </div>
+        )}
+        <div>
+          <label htmlFor="section-select" className="block text-lg font-semibold text-gray-700 mb-2">Guidance Section:</label>
+          <select id="section-select" value={selectedSection} onChange={(e) => setSelectedSection(e.target.value)}
+            className="w-full rounded-md border-gray-300 shadow-sm px-4 py-3 text-gray-800 focus:ring-2 focus:ring-indigo-500">
+            <option value="">-- Select Section to Generate --</option>
+            {SECTION_OPTIONS.map(opt => (<option key={opt.key} value={opt.key}>{opt.label}</option>))}
+          </select>
         </div>
       </div>
       <button onClick={generateSectionGuidance}
         className={`w-full px-6 py-3 rounded-lg text-white font-bold text-lg transition-all duration-300 mt-6 ${
-          loading ? 'bg-indigo-400 cursor-not-allowed animate-pulse' : 'bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 hover:shadow-md'
+          (loading || !selectedSection || (category === 'optional' && !optionalSubject))
+            ? 'bg-indigo-400 cursor-not-allowed'
+            : 'bg-indigo-600 hover:bg-indigo-700'
         }`}
-        disabled={loading || !selectedSection}>
+        disabled={loading || !selectedSection || (category === 'optional' && !optionalSubject)}>
         {loading ? 'Generating Guidance...' : 'Get Guidance for Section'}
       </button>
 
+      {/* --- THIS ENTIRE SECTION WAS MISSING --- */}
       {error && (
         <div className="p-4 mt-4 bg-red-100 border border-red-400 text-red-700 rounded-lg" role="alert">
           {error}
         </div>
       )}
 
-      {/* Guidance and Feedback Section */}
       {guidanceSections.length > 0 && (
         <div className="mt-8 space-y-6">
           <div className="p-6 bg-gray-50 rounded-xl border border-gray-200 shadow-inner space-y-4">
@@ -262,8 +294,7 @@ const UserPortal = () => {
                 <select id="language-select" value={targetLanguage} onChange={(e) => handleLanguageChange(e.target.value)}
                   className="rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
                   disabled={isTranslating || loading}>
-                  <option value="en">English</option><option value="hi">Hindi (हिन्दी)</option><option value="bn">Bengali (বাংলা)</option>
-                  <option value="ta">Tamil (தமிழ்)</option><option value="te">Telugu (తెలుగు)</option><option value="mr">Marathi (मराठी)</option>
+                  <option value="en">English</option><option value="hi">Hindi (हिन्दी)</option>
                 </select>
                 {isTranslating && <span className="text-sm text-indigo-600 animate-pulse">Translating...</span>}
               </div>
@@ -279,17 +310,13 @@ const UserPortal = () => {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className="md:col-span-1">
                 <label className="block text-sm font-medium mb-1">Your Rating (1–10):</label>
-                <input
-                  type="number" min="1" max="10" className="border p-2 rounded w-full"
-                  value={rating} onChange={(e) => setRating(e.target.value)}
-                />
+                <input type="number" min="1" max="10" className="border p-2 rounded w-full"
+                  value={rating} onChange={(e) => setRating(e.target.value)} />
               </div>
               <div className="md:col-span-2">
                 <label className="block text-sm font-medium mb-1">Optional Comment:</label>
-                <textarea
-                  className="border p-2 rounded w-full" placeholder="Your feedback helps us improve..."
-                  value={comment} onChange={(e) => setComment(e.target.value)}
-                />
+                <textarea className="border p-2 rounded w-full" placeholder="Your feedback helps us improve..."
+                  value={comment} onChange={(e) => setComment(e.target.value)} />
               </div>
             </div>
             <button onClick={submitFeedback}
@@ -299,17 +326,17 @@ const UserPortal = () => {
           </div>
 
           <div className="flex justify-center mt-6 space-x-4 border-t pt-6">
-              {copyFeedback && (
-                <span className="text-sm text-green-600 self-center">{copyFeedback}</span>
-              )}
-              <button onClick={handleCopyGuidance}
-                className="px-4 py-2 rounded-lg bg-blue-500 text-white font-semibold hover:bg-blue-600">
-                Copy All Guidance
-              </button>
-              <button onClick={handleReset}
-                className="px-4 py-2 rounded-lg bg-red-500 text-white font-semibold hover:bg-red-600">
-                Reset
-              </button>
+            {copyFeedback && (
+              <span className="text-sm text-green-600 self-center">{copyFeedback}</span>
+            )}
+            <button onClick={handleCopyGuidance}
+              className="px-4 py-2 rounded-lg bg-blue-500 text-white font-semibold hover:bg-blue-600">
+              Copy All Guidance
+            </button>
+            <button onClick={handleReset}
+              className="px-4 py-2 rounded-lg bg-red-500 text-white font-semibold hover:bg-red-600">
+              Reset
+            </button>
           </div>
         </div>
       )}
