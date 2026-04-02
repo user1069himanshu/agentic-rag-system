@@ -1,0 +1,9 @@
+Subject: Empowering McKinsey's Supply Chain with Advanced Analytics
+
+Dear Hiring Manager,
+I am excited to express my interest in the Software Delivery Analyst (Data Science) - Manufacturing and Supply Chain position at McKinsey & Company. With my background as a Machine Learning Engineer at Vision IAS, where I designed and deployed production-grade Generative AI systems, I am confident in my ability to contribute effectively to your team.
+At Vision IAS, I focused on building structured prompt engineering processes, schema-validated asynchronous APIs, and constraint-aware workflows. My efforts reduced generation errors by 50% and improved system reliability by 30%. Additionally, I developed human-in-the-loop feedback systems to enhance the quality of AI-generated outputs. These experiences have equipped me with the skills to tackle complex data challenges and optimize supply chain processes.
+I am particularly drawn to McKinsey & Company's commitment to driving lasting impact and building long-term capabilities. The firm's emphasis on continuous learning and diverse perspectives resonates with my passion for innovation and collaboration. I believe my expertise in machine learning and data analysis can contribute to refining digital modules and ideating new capabilities for your clients.
+Thank you for considering my application. I look forward to the opportunity to discuss how my skills and experiences can contribute to the success of your team.
+Sincerely,
+HIMANSHU KUMAR
