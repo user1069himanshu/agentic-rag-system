@@ -1,3 +1,5 @@
+import os
+
 from langchain_openai import ChatOpenAI
 
 from ingestion.loader import load_documents
@@ -15,6 +17,7 @@ from rag.chain import create_rag_chain
 
 from agents.tools import create_tools
 from agents.agent import create_agent
+from agents.memory import get_memory
 
 from utils.logger import get_logger
 
@@ -34,14 +37,23 @@ def main():
         logger.info("Creating new vectorstore...")
         docs = load_documents("data/sample.txt")
         chunks = split_documents(docs)
-        logger.debug("chunks created : %d, length of chunks : %d", len(chunks), len(chunks[0]))
+        logger.debug("chunks created : %d", len(chunks))
         vectorstore = create_and_save_vectorstore(chunks, embeddings)
 
     retriever = get_retriever(vectorstore)
+    logger.debug("retriever created : %s", retriever)
+
     rag_chain = create_rag_chain(retriever)
+    logger.debug("rag chain created : %s", rag_chain)
 
     tools = create_tools(rag_chain, llm)
-    agent = create_agent(tools)
+    logger.debug("tools created : %s", tools)
+
+    memory = get_memory()
+    logger.debug("memory created : %s", memory)
+
+    agent = create_agent(tools, memory)
+    logger.debug("agent created : %s", agent)
 
     logger.info("\n💬 Ask something (type 'exit' to quit):")
 
@@ -51,8 +63,8 @@ def main():
         if query.lower() == "exit":
             break
 
-        response = agent.run(query)
-        logger.info("\n🔥 Final Answer:", response, "\n")
+        response = agent.invoke({"input": query})
+        logger.info(f"🔥 Final Answer: {response['output']}")
 
 
 if __name__ == "__main__":

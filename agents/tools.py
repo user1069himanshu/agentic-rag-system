@@ -18,9 +18,13 @@ def create_tools(rag_chain, llm):
     )
 
     # 🔹 SUMMARIZATION TOOL
-    def summarize_tool_func(text: str):
-        response = llm.invoke(f"Summarize this:\n{text}")
-        return response.content
+    def summarize_tool_func(query: str):
+        response = rag_chain.invoke({"input": query})
+        text = response["answer"]
+
+        # then summarize
+        summary = llm.invoke(f"Summarize this in 20 words:\n{text}")
+        return summary.content
 
     summarize_tool = Tool(
         name="Summarization Tool",

@@ -2,7 +2,7 @@ from langchain.agents import initialize_agent, AgentType
 from langchain_openai import ChatOpenAI
 
 
-def create_agent(tools):
+def create_agent(tools, memory):
     """
     Create agent with tools
     """
@@ -13,6 +13,7 @@ def create_agent(tools):
         tools,
         llm,
         agent=AgentType.ZERO_SHOT_REACT_DESCRIPTION,
+        memory=memory,
         verbose=True
     )
 
